@@ -204,6 +204,15 @@ async function submitForm(event) {
     return;
   }
 
+  const consumerTotal = getConsumerCount();
+  const confirmMessage = `Foram cadastrados ${consumerTotal} ${consumerTotal === 1 ? "consumidor" : "consumidores"}. Deseja continuar com o envio?`;
+
+  if (!window.confirm(confirmMessage)) {
+    statusEl.className = "";
+    statusEl.textContent = "Envio cancelado. Confira os dados antes de enviar.";
+    return;
+  }
+
   submitBtn.disabled = true;
   statusEl.className = "";
   statusEl.textContent = "Preparando anexos...";
