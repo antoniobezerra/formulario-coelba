@@ -237,6 +237,12 @@ button:disabled {
   display: none;
 }
 
+.consumer-block {
+  background: #f8fbff;
+  border-color: #b9d4f6;
+  border-left: 5px solid var(--primary);
+}
+
 #status {
   margin: 0;
   font-weight: 700;
