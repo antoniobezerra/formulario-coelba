@@ -8,6 +8,7 @@ const consumerTemplate = document.querySelector("#consumerTemplate");
 const consumerCount = document.querySelector("#consumerCount");
 const consumerTabs = document.querySelector("#consumerTabs");
 const addConsumerBtn = document.querySelector("#addConsumerBtn");
+const removeConsumerBtn = document.querySelector("#removeConsumerBtn");
 const statusEl = document.querySelector("#status");
 const submitBtn = document.querySelector("#submitBtn");
 const progressBar = document.querySelector("#progressBar");
@@ -266,6 +267,21 @@ function createConsumerBlock(index) {
   consumersRoot.appendChild(clone);
 }
 
+function renumberConsumerBlocks() {
+  consumersRoot.querySelectorAll(".consumer-block").forEach((block, index) => {
+    const consumerIndex = index + 1;
+
+    block.id = `consumer-panel-${consumerIndex}`;
+    block.dataset.consumerIndex = String(consumerIndex);
+    block.setAttribute("aria-labelledby", `consumer-tab-${consumerIndex}`);
+    block.querySelector("[data-consumer-number]").textContent = consumerIndex;
+
+    block.querySelectorAll("[data-name]").forEach((field) => {
+      field.name = `c${consumerIndex}_${field.dataset.name}`;
+    });
+  });
+}
+
 function renderTabs() {
   const count = getConsumerCount();
   consumerTabs.innerHTML = "";
@@ -283,6 +299,7 @@ function renderTabs() {
   }
 
   addConsumerBtn.disabled = false;
+  removeConsumerBtn.disabled = count <= 1;
 }
 
 function updateVisibleConsumer() {
@@ -332,6 +349,30 @@ function addConsumer() {
   const nextCount = getConsumerCount() + 1;
   consumerCount.value = String(nextCount);
   activeConsumer = nextCount;
+  syncConsumers();
+}
+
+function removeActiveConsumer() {
+  const count = getConsumerCount();
+
+  if (count <= 1) {
+    return;
+  }
+
+  const block = consumersRoot.querySelector(`[data-consumer-index="${activeConsumer}"]`);
+  const confirmed = window.confirm(`Remover o Consumidor ${activeConsumer}? Os dados desta aba serão apagados.`);
+
+  if (!confirmed) {
+    return;
+  }
+
+  if (block) {
+    block.remove();
+  }
+
+  consumerCount.value = String(count - 1);
+  activeConsumer = Math.min(activeConsumer, count - 1);
+  renumberConsumerBlocks();
   syncConsumers();
 }
 
@@ -557,6 +598,7 @@ async function submitForm(event) {
 }
 
 addConsumerBtn.addEventListener("click", addConsumer);
+removeConsumerBtn.addEventListener("click", removeActiveConsumer);
 form.addEventListener("submit", submitForm);
 form.addEventListener("input", markFieldEditing);
 form.addEventListener("change", markFieldFinalized);
