@@ -6,25 +6,108 @@ const form = document.querySelector("#caseForm");
 const consumersRoot = document.querySelector("#consumers");
 const consumerTemplate = document.querySelector("#consumerTemplate");
 const consumerCount = document.querySelector("#consumerCount");
+const consumerTabs = document.querySelector("#consumerTabs");
+const addConsumerBtn = document.querySelector("#addConsumerBtn");
 const statusEl = document.querySelector("#status");
 const submitBtn = document.querySelector("#submitBtn");
 
-function renderConsumers() {
+const MAX_CONSUMERS = 5;
+let activeConsumer = 1;
+
+function getConsumerCount() {
   const count = Number(consumerCount.value || 1);
-  consumersRoot.innerHTML = "";
+  return Math.min(Math.max(count, 1), MAX_CONSUMERS);
+}
+
+function createConsumerBlock(index) {
+  const clone = consumerTemplate.content.cloneNode(true);
+  const block = clone.querySelector(".consumer-block");
+
+  block.id = `consumer-panel-${index}`;
+  block.dataset.consumerIndex = String(index);
+  block.setAttribute("role", "tabpanel");
+  block.setAttribute("aria-labelledby", `consumer-tab-${index}`);
+  clone.querySelector("[data-consumer-number]").textContent = index;
+
+  clone.querySelectorAll("[data-name]").forEach((field) => {
+    const originalName = field.dataset.name;
+
+    if (field.hasAttribute("required")) {
+      field.dataset.required = "true";
+    }
+
+    field.name = `c${index}_${originalName}`;
+    field.required = false;
+  });
+
+  consumersRoot.appendChild(clone);
+}
+
+function renderTabs() {
+  const count = getConsumerCount();
+  consumerTabs.innerHTML = "";
 
   for (let i = 1; i <= count; i++) {
-    const clone = consumerTemplate.content.cloneNode(true);
-    clone.querySelector("[data-consumer-number]").textContent = i;
-
-    clone.querySelectorAll("[data-name]").forEach((field) => {
-      const originalName = field.dataset.name;
-      field.name = `c${i}_${originalName}`;
-      if (field.id) field.id = `c${i}_${field.id}`;
-    });
-
-    consumersRoot.appendChild(clone);
+    const tab = document.createElement("button");
+    tab.id = `consumer-tab-${i}`;
+    tab.className = "consumer-tab";
+    tab.type = "button";
+    tab.role = "tab";
+    tab.setAttribute("aria-controls", `consumer-panel-${i}`);
+    tab.textContent = `Consumidor ${i}`;
+    tab.addEventListener("click", () => setActiveConsumer(i));
+    consumerTabs.appendChild(tab);
   }
+
+  addConsumerBtn.disabled = count >= MAX_CONSUMERS;
+}
+
+function updateVisibleConsumer() {
+  const count = getConsumerCount();
+  activeConsumer = Math.min(activeConsumer, count);
+
+  consumersRoot.querySelectorAll(".consumer-block").forEach((block) => {
+    const isActive = Number(block.dataset.consumerIndex) === activeConsumer;
+
+    block.classList.toggle("is-hidden", !isActive);
+    block.hidden = !isActive;
+
+    block.querySelectorAll("[data-required='true']").forEach((field) => {
+      field.required = isActive;
+    });
+  });
+
+  consumerTabs.querySelectorAll(".consumer-tab").forEach((tab, index) => {
+    const isActive = index + 1 === activeConsumer;
+    tab.classList.toggle("is-active", isActive);
+    tab.setAttribute("aria-selected", String(isActive));
+  });
+}
+
+function syncConsumers() {
+  const count = getConsumerCount();
+  consumerCount.value = String(count);
+
+  for (let i = 1; i <= count; i++) {
+    if (!consumersRoot.querySelector(`[data-consumer-index="${i}"]`)) {
+      createConsumerBlock(i);
+    }
+  }
+
+  renderTabs();
+  updateVisibleConsumer();
+}
+
+function setActiveConsumer(index) {
+  activeConsumer = index;
+  updateVisibleConsumer();
+}
+
+function addConsumer() {
+  const nextCount = Math.min(getConsumerCount() + 1, MAX_CONSUMERS);
+  consumerCount.value = String(nextCount);
+  activeConsumer = nextCount;
+  syncConsumers();
 }
 
 function formToPayload(formEl) {
@@ -48,12 +131,30 @@ function formToPayload(formEl) {
   return payload;
 }
 
+function validateConsumers() {
+  const count = getConsumerCount();
+
+  for (let i = 1; i <= count; i++) {
+    setActiveConsumer(i);
+
+    if (!form.reportValidity()) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 async function submitForm(event) {
   event.preventDefault();
 
   if (APPS_SCRIPT_WEB_APP_URL.includes("COLE_AQUI")) {
     statusEl.className = "err";
     statusEl.textContent = "Configure a URL do Apps Script no arquivo app.js antes de enviar.";
+    return;
+  }
+
+  if (!validateConsumers()) {
     return;
   }
 
@@ -86,7 +187,9 @@ async function submitForm(event) {
 
     form.reset();
     consumerCount.value = "1";
-    renderConsumers();
+    activeConsumer = 1;
+    consumersRoot.innerHTML = "";
+    syncConsumers();
 
     statusEl.className = "ok";
     statusEl.textContent = "Relato enviado com sucesso. Obrigado.";
@@ -99,6 +202,6 @@ async function submitForm(event) {
   }
 }
 
-consumerCount.addEventListener("change", renderConsumers);
+addConsumerBtn.addEventListener("click", addConsumer);
 form.addEventListener("submit", submitForm);
-renderConsumers();
+syncConsumers();

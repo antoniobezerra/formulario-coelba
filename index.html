@@ -46,15 +46,14 @@
           <input name="integrador_cidade_uf" required />
         </label>
 
-        <label>Quantidade de consumidores neste envio
-          <select id="consumerCount" name="quantidade_consumidores" required>
-            <option value="1">1 consumidor</option>
-            <option value="2">2 consumidores</option>
-            <option value="3">3 consumidores</option>
-            <option value="4">4 consumidores</option>
-            <option value="5">5 consumidores</option>
-          </select>
-        </label>
+        <div class="consumer-tabs-field">
+          <input id="consumerCount" name="quantidade_consumidores" type="hidden" value="1" />
+          <span class="field-label">Consumidores neste envio</span>
+          <div class="consumer-tabs-row">
+            <div id="consumerTabs" class="consumer-tabs" role="tablist" aria-label="Consumidores"></div>
+            <button id="addConsumerBtn" class="secondary-btn" type="button">Adicionar consumidor</button>
+          </div>
+        </div>
       </div>
 
       <div id="consumers"></div>
