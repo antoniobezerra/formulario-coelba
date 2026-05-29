@@ -18,8 +18,11 @@ const authorizationSection = document.querySelector("#authorizationSection");
 const formActions = document.querySelector("#formActions");
 const devTools = document.querySelector("#devTools");
 const fillTestDataBtn = document.querySelector("#fillTestDataBtn");
+const localAppsScriptUrl = document.querySelector("#localAppsScriptUrl");
+const saveLocalAppsScriptUrlBtn = document.querySelector("#saveLocalAppsScriptUrlBtn");
 
 const MAX_FILE_SIZE_MB = 10;
+const LOCAL_APPS_SCRIPT_URL_KEY = "formularioCoelbaAppsScriptUrl";
 let activeConsumer = 1;
 
 function onlyDigits(value) {
@@ -306,7 +309,37 @@ function setupDevTools() {
   }
 
   devTools.hidden = false;
+  localAppsScriptUrl.value = localStorage.getItem(LOCAL_APPS_SCRIPT_URL_KEY) || "";
+  saveLocalAppsScriptUrlBtn.addEventListener("click", saveLocalAppsScriptUrl);
   fillTestDataBtn.addEventListener("click", fillTestData);
+}
+
+function getAppsScriptWebAppUrl() {
+  const localUrl = localStorage.getItem(LOCAL_APPS_SCRIPT_URL_KEY);
+
+  if (localUrl) {
+    return localUrl;
+  }
+
+  return APPS_SCRIPT_WEB_APP_URL;
+}
+
+function isConfiguredAppsScriptUrl(url) {
+  return url && !url.includes("COLE_AQUI") && /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url);
+}
+
+function saveLocalAppsScriptUrl() {
+  const url = localAppsScriptUrl.value.trim();
+
+  if (!isConfiguredAppsScriptUrl(url)) {
+    statusEl.className = "err";
+    statusEl.textContent = "Cole a URL do Web App do Apps Script terminando em /exec.";
+    return;
+  }
+
+  localStorage.setItem(LOCAL_APPS_SCRIPT_URL_KEY, url);
+  statusEl.className = "ok";
+  statusEl.textContent = "URL local do Apps Script salva. Agora pode testar o envio.";
 }
 
 function isElementVisible(element) {
@@ -676,9 +709,11 @@ async function collectFiles() {
 async function submitForm(event) {
   event.preventDefault();
 
-  if (APPS_SCRIPT_WEB_APP_URL.includes("COLE_AQUI")) {
+  const appsScriptUrl = getAppsScriptWebAppUrl();
+
+  if (!isConfiguredAppsScriptUrl(appsScriptUrl)) {
     statusEl.className = "err";
-    statusEl.textContent = "Configure a URL do Apps Script no arquivo app.js antes de enviar.";
+    statusEl.textContent = "Cole e salve a URL do Web App do Apps Script para enviar.";
     return;
   }
 
@@ -706,7 +741,7 @@ async function submitForm(event) {
     statusEl.textContent = payload._files.length > 0 ? "Enviando dados e anexos..." : "Enviando...";
 
     // text/plain evita preflight CORS em muitos cenários de Apps Script.
-    const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
+    const response = await fetch(appsScriptUrl, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
