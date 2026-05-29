@@ -19,6 +19,14 @@ Este guia explica como publicar, configurar e atualizar o formulario Coelba.
 
 ## 3. Configurar o Apps Script
 
+Antes de mexer na producao, divida o trabalho em tres frentes. Se estiver usando agentes/assistentes, peça um agente para cada frente:
+
+- Agente Drive: confirmar ou criar a pasta raiz no Google Drive e entregar o `DRIVE_ROOT_FOLDER_ID`.
+- Agente Planilha: confirmar ou criar a planilha no Google Sheets e entregar o `SPREADSHEET_ID`.
+- Agente Apps Script: colar o `Code.gs`, publicar como Web App, autorizar Drive/Sheets e entregar a URL final terminada em `/exec`.
+
+No caso deste projeto, se o usuario ja enviou a pasta do Drive e a planilha, use esses links para extrair os IDs. Nao invente IDs e nao deixe placeholders em producao.
+
 1. Abra a planilha do Google Sheets.
 2. Va em `Extensoes > Apps Script`.
 3. Apague o conteudo antigo do editor.
