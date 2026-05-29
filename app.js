@@ -12,6 +12,7 @@ const statusEl = document.querySelector("#status");
 const submitBtn = document.querySelector("#submitBtn");
 
 const MAX_CONSUMERS = 5;
+const MAX_FILE_SIZE_MB = 10;
 let activeConsumer = 1;
 
 function getConsumerCount() {
@@ -115,6 +116,10 @@ function formToPayload(formEl) {
   const payload = {};
 
   for (const [key, value] of fd.entries()) {
+    if (value instanceof File) {
+      continue;
+    }
+
     // Se houver múltiplos campos com mesmo name, agrupa em array.
     if (Object.prototype.hasOwnProperty.call(payload, key)) {
       if (!Array.isArray(payload[key])) payload[key] = [payload[key]];
@@ -145,6 +150,47 @@ function validateConsumers() {
   return true;
 }
 
+function fileToPayload(file, consumerIndex) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      const result = String(reader.result || "");
+      const base64 = result.includes(",") ? result.split(",").pop() : result;
+
+      resolve({
+        consumer_index: consumerIndex,
+        name: file.name,
+        type: file.type || "application/octet-stream",
+        size: file.size,
+        base64
+      });
+    };
+
+    reader.onerror = () => reject(new Error(`Falha ao ler o arquivo ${file.name}.`));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function collectFiles() {
+  const files = [];
+  const maxSize = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+  for (const input of form.querySelectorAll("input[type='file'][name]")) {
+    const consumerIndex = Number(input.name.match(/^c(\d+)_/)?.[1] || 0);
+
+    for (const file of input.files) {
+      if (file.size > maxSize) {
+        throw new Error(`O arquivo ${file.name} passa de ${MAX_FILE_SIZE_MB} MB.`);
+      }
+
+      files.push(await fileToPayload(file, consumerIndex));
+    }
+  }
+
+  return files;
+}
+
 async function submitForm(event) {
   event.preventDefault();
 
@@ -158,13 +204,16 @@ async function submitForm(event) {
     return;
   }
 
-  const payload = formToPayload(form);
-
   submitBtn.disabled = true;
   statusEl.className = "";
-  statusEl.textContent = "Enviando...";
+  statusEl.textContent = "Preparando anexos...";
 
   try {
+    const payload = formToPayload(form);
+    payload._files = await collectFiles();
+
+    statusEl.textContent = payload._files.length > 0 ? "Enviando dados e anexos..." : "Enviando...";
+
     // text/plain evita preflight CORS em muitos cenários de Apps Script.
     const response = await fetch(APPS_SCRIPT_WEB_APP_URL, {
       method: "POST",
@@ -196,7 +245,7 @@ async function submitForm(event) {
   } catch (error) {
     console.error(error);
     statusEl.className = "err";
-    statusEl.textContent = "Erro ao enviar. Verifique a configuração do Apps Script.";
+    statusEl.textContent = error.message || "Erro ao enviar. Verifique a configuração do Apps Script.";
   } finally {
     submitBtn.disabled = false;
   }

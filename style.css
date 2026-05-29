@@ -177,6 +177,12 @@ textarea {
   resize: vertical;
 }
 
+.help-text {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
 input:focus, select:focus, textarea:focus {
   outline: 3px solid rgba(15, 99, 206, .18);
   border-color: var(--primary);

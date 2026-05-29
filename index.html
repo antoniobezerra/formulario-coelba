@@ -17,8 +17,8 @@
         irregularidades procedimentais em casos de geração distribuída.
       </p>
       <div class="notice">
-        <strong>Importante:</strong> nesta primeira versão, os documentos não são enviados pelo site.
-        Os anexos devem ser organizados depois por e-mail, pasta compartilhada ou formulário documental separado.
+        <strong>Importante:</strong> os documentos anexados serão enviados para uma pasta no Google Drive
+        configurada no Apps Script, separados por envio e por consumidor.
       </div>
     </section>
 
@@ -313,6 +313,14 @@
         <label><input type="checkbox" data-name="doc_parecer_acesso" value="sim" /> Parecer de acesso</label>
         <label><input type="checkbox" data-name="doc_procuracao" value="sim" /> Procuração</label>
       </div>
+
+      <h3>Anexos do consumidor</h3>
+      <label>Enviar documentos
+        <input data-name="arquivos" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
+      </label>
+      <p class="help-text">
+        Envie PDF, imagens ou documentos. Para arquivos muito grandes, prefira dividir em mais de um envio.
+      </p>
     </section>
   </template>
 
