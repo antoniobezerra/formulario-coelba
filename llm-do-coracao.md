@@ -8,10 +8,7 @@ Este guia explica como publicar, configurar e atualizar o formulario Coelba.
   `https://antoniobezerra.github.io/formulario-coelba/`
 - Repositorio:
   `https://github.com/antoniobezerra/formulario-coelba`
-- Planilha configurada no `Code.gs`:
-  `1OTd6W7d8WlIs-kFYcO71yPXVXMvdtBSWOkIYnU1BAt0`
-- Pasta do Drive configurada no `Code.gs`:
-  `1D_ZYjtun9hpg4JSeGkr3gDip8StPGNnz`
+- Planilha e pasta do Drive devem ser configuradas no `Code.gs` com os IDs reais do seu projeto.
 
 ## 2. Arquivos importantes
 
@@ -29,8 +26,8 @@ Este guia explica como publicar, configurar e atualizar o formulario Coelba.
 5. Confirme que estas duas linhas estao preenchidas:
 
 ```js
-const SPREADSHEET_ID = "1OTd6W7d8WlIs-kFYcO71yPXVXMvdtBSWOkIYnU1BAt0";
-const DRIVE_ROOT_FOLDER_ID = "1D_ZYjtun9hpg4JSeGkr3gDip8StPGNnz";
+const SPREADSHEET_ID = "ID_DA_PLANILHA";
+const DRIVE_ROOT_FOLDER_ID = "ID_DA_PASTA_DO_DRIVE";
 ```
 
 6. Salve o projeto.
