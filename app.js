@@ -16,6 +16,8 @@ const progressPercent = document.querySelector("#progressPercent");
 const integratorGate = document.querySelector("#integratorGate");
 const authorizationSection = document.querySelector("#authorizationSection");
 const formActions = document.querySelector("#formActions");
+const devTools = document.querySelector("#devTools");
+const fillTestDataBtn = document.querySelector("#fillTestDataBtn");
 
 const MAX_FILE_SIZE_MB = 10;
 let activeConsumer = 1;
@@ -227,6 +229,84 @@ function setContinuationLocked(isLocked) {
 function updateContinuationGate() {
   setContinuationLocked(!isIntegratorReady());
   updateProgress();
+}
+
+function setFieldValue(selector, value) {
+  const field = form.querySelector(selector);
+
+  if (!field) {
+    return;
+  }
+
+  field.value = value;
+  field.dataset.finalized = "true";
+  field.dispatchEvent(new Event("input", { bubbles: true }));
+  field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function setChecked(selector, checked = true) {
+  const field = form.querySelector(selector);
+
+  if (!field) {
+    return;
+  }
+
+  field.checked = checked;
+  field.dataset.finalized = "true";
+  field.dispatchEvent(new Event("change", { bubbles: true }));
+}
+
+function fillTestData() {
+  setFieldValue("[name='integrador_nome']", "Integrador Teste");
+  setFieldValue("[name='integrador_documento']", "11.222.333/0001-81");
+  setFieldValue("[name='integrador_telefone']", "(71) 99999-8888");
+  setFieldValue("[name='integrador_email']", "teste@example.com");
+  setFieldValue("[name='integrador_cidade_uf']", "Salvador / BA");
+
+  updateContinuationGate();
+  setActiveConsumer(activeConsumer);
+
+  const prefix = `c${activeConsumer}_`;
+  setFieldValue(`[name='${prefix}consumidor_nome']`, `Consumidor Teste ${activeConsumer}`);
+  setFieldValue(`[name='${prefix}consumidor_documento']`, "529.982.247-25");
+  setFieldValue(`[name='${prefix}consumidor_telefone']`, "(71) 98888-7777");
+  setFieldValue(`[name='${prefix}consumidor_email']`, "consumidor@example.com");
+  setFieldValue(`[name='${prefix}consumidor_cidade_uf']`, "Salvador / BA");
+  setFieldValue(`[name='${prefix}consumidor_endereco']`, "Rua de Teste, 123");
+  setFieldValue(`[name='${prefix}consumidor_uc']`, "UC123456");
+  setFieldValue(`[name='${prefix}houve_aviso_previo']`, "Não sei");
+  setFieldValue(`[name='${prefix}tecnico_identificou']`, "Sim");
+  setFieldValue(`[name='${prefix}toi_entregue']`, "Não sei");
+  setFieldValue(`[name='${prefix}pericia_informada']`, "Não sei");
+  setFieldValue(`[name='${prefix}carta_cobranca']`, "Sim");
+  setFieldValue(`[name='${prefix}relatorio_tecnico']`, "Não sei");
+  setFieldValue(`[name='${prefix}calculo_detalhado']`, "Não sei");
+  setFieldValue(`[name='${prefix}relato_inspecao']`, "Relato de teste para validar envio e anexos.");
+  setFieldValue(`[name='${prefix}entrada_area_interna']`, "Não sei");
+  setFieldValue(`[name='${prefix}fotos_videos_retirada']`, "Não sei");
+  setFieldValue(`[name='${prefix}lacre_comprovante']`, "Não se aplica");
+  setFieldValue(`[name='${prefix}projeto_aprovado_anterior']`, "Não sei");
+  setFieldValue(`[name='${prefix}aprovacao_posterior']`, "Não sei");
+  setFieldValue(`[name='${prefix}atualizacao_projeto']`, "Não sei");
+  setFieldValue(`[name='${prefix}documentos_regularizacao']`, "Sim");
+  setFieldValue(`[name='${prefix}ampliacao_em_operacao']`, "Não sei");
+  setChecked("[name='autorizacao_uso_dados']");
+  setChecked("[name='declaracao_veracidade']");
+
+  updateProgress();
+  statusEl.className = "ok";
+  statusEl.textContent = "Dados de teste preenchidos. Agora anexe um arquivo e envie.";
+}
+
+function setupDevTools() {
+  const isLocal = ["127.0.0.1", "localhost"].includes(window.location.hostname);
+
+  if (!isLocal) {
+    return;
+  }
+
+  devTools.hidden = false;
+  fillTestDataBtn.addEventListener("click", fillTestData);
 }
 
 function isElementVisible(element) {
@@ -685,4 +765,5 @@ form.addEventListener("change", markFieldFinalized);
 form.addEventListener("focusout", markFieldFinalized);
 setupCpfCnpjFields();
 setupPhoneFields();
+setupDevTools();
 syncConsumers();

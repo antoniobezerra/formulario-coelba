@@ -221,6 +221,14 @@ textarea {
   font-weight: 800;
 }
 
+.dev-tools {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px dashed #b9d4f6;
+  border-radius: 12px;
+  background: #f8fbff;
+}
+
 input:focus, select:focus, textarea:focus {
   outline: 3px solid rgba(15, 99, 206, .18);
   border-color: var(--primary);
