@@ -138,6 +138,42 @@ function setupCpfCnpjFields(root = document) {
   });
 }
 
+function formatPhone(value) {
+  const digits = onlyDigits(value).slice(0, 11);
+
+  if (digits.length <= 2) {
+    return digits.replace(/^(\d{1,2})/, "($1");
+  }
+
+  if (digits.length <= 10) {
+    return digits
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/^(\(\d{2}\) \d{4})(\d)/, "$1-$2");
+  }
+
+  return digits
+    .replace(/^(\d{2})(\d)/, "($1) $2")
+    .replace(/^(\(\d{2}\) \d{5})(\d)/, "$1-$2");
+}
+
+function applyPhoneMask(event) {
+  event.target.value = formatPhone(event.target.value);
+}
+
+function setupPhoneFields(root = document) {
+  root.querySelectorAll("[data-phone-field]").forEach((field) => {
+    if (field.dataset.phoneMaskReady === "true") {
+      return;
+    }
+
+    field.dataset.phoneMaskReady = "true";
+    field.addEventListener("input", applyPhoneMask);
+    field.addEventListener("blur", () => {
+      field.value = formatPhone(field.value);
+    });
+  });
+}
+
 function getConsumerCount() {
   const count = Number(consumerCount.value || 1);
   return Math.min(Math.max(count, 1), MAX_CONSUMERS);
@@ -166,6 +202,7 @@ function createConsumerBlock(index) {
 
   setupDocumentUploads(block);
   setupCpfCnpjFields(block);
+  setupPhoneFields(block);
   consumersRoot.appendChild(clone);
 }
 
@@ -430,4 +467,5 @@ async function submitForm(event) {
 addConsumerBtn.addEventListener("click", addConsumer);
 form.addEventListener("submit", submitForm);
 setupCpfCnpjFields();
+setupPhoneFields();
 syncConsumers();
