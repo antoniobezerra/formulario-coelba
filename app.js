@@ -14,6 +14,9 @@ const submitBtn = document.querySelector("#submitBtn");
 const progressBar = document.querySelector("#progressBar");
 const progressText = document.querySelector("#progressText");
 const progressPercent = document.querySelector("#progressPercent");
+const integratorGate = document.querySelector("#integratorGate");
+const authorizationSection = document.querySelector("#authorizationSection");
+const formActions = document.querySelector("#formActions");
 
 const MAX_FILE_SIZE_MB = 10;
 let activeConsumer = 1;
@@ -160,7 +163,32 @@ function formatPhone(value) {
 }
 
 function applyPhoneMask(event) {
-  event.target.value = formatPhone(event.target.value);
+  const field = event.target;
+  field.value = formatPhone(field.value);
+
+  if (onlyDigits(field.value).length >= 10) {
+    validatePhoneField(field);
+  } else {
+    field.setCustomValidity("");
+  }
+}
+
+function validatePhoneField(field) {
+  const digits = onlyDigits(field.value);
+
+  if (!digits && !field.required) {
+    field.setCustomValidity("");
+    return true;
+  }
+
+  if (digits.length < 10 || digits.length > 11) {
+    field.setCustomValidity("Informe um telefone com DDD válido.");
+    return false;
+  }
+
+  field.value = formatPhone(field.value);
+  field.setCustomValidity("");
+  return true;
 }
 
 function setupPhoneFields(root = document) {
@@ -172,9 +200,34 @@ function setupPhoneFields(root = document) {
     field.dataset.phoneMaskReady = "true";
     field.addEventListener("input", applyPhoneMask);
     field.addEventListener("blur", () => {
-      field.value = formatPhone(field.value);
+      validatePhoneField(field);
     });
+    field.addEventListener("change", () => validatePhoneField(field));
   });
+}
+
+function isIntegratorReady() {
+  const documentField = form.elements.integrador_documento;
+  const phoneField = form.elements.integrador_telefone;
+  const emailField = form.elements.integrador_email;
+
+  return validateCpfCnpjField(documentField) &&
+    validatePhoneField(phoneField) &&
+    emailField.checkValidity();
+}
+
+function setContinuationLocked(isLocked) {
+  consumersRoot.hidden = isLocked;
+  authorizationSection.hidden = isLocked;
+  formActions.hidden = isLocked;
+  integratorGate.hidden = !isLocked;
+  addConsumerBtn.disabled = isLocked;
+  removeConsumerBtn.disabled = isLocked || getConsumerCount() <= 1;
+}
+
+function updateContinuationGate() {
+  setContinuationLocked(!isIntegratorReady());
+  updateProgress();
 }
 
 function isElementVisible(element) {
@@ -298,8 +351,9 @@ function renderTabs() {
     consumerTabs.appendChild(tab);
   }
 
-  addConsumerBtn.disabled = false;
-  removeConsumerBtn.disabled = count <= 1;
+  const locked = !integratorGate.hidden;
+  addConsumerBtn.disabled = locked;
+  removeConsumerBtn.disabled = locked || count <= 1;
 }
 
 function updateVisibleConsumer() {
@@ -336,13 +390,13 @@ function syncConsumers() {
 
   renderTabs();
   updateVisibleConsumer();
-  updateProgress();
+  updateContinuationGate();
 }
 
 function setActiveConsumer(index) {
   activeConsumer = index;
   updateVisibleConsumer();
-  updateProgress();
+  updateContinuationGate();
 }
 
 function addConsumer() {
@@ -387,7 +441,7 @@ function markFieldEditing(event) {
     field.dataset.finalized = "false";
   }
 
-  updateProgress();
+  updateContinuationGate();
 }
 
 function markFieldFinalized(event) {
@@ -464,6 +518,14 @@ function validateConsumers() {
       field.reportValidity();
       return false;
     }
+  }
+
+  if (!isIntegratorReady()) {
+    updateContinuationGate();
+    form.elements.integrador_documento.reportValidity();
+    form.elements.integrador_telefone.reportValidity();
+    form.elements.integrador_email.reportValidity();
+    return false;
   }
 
   const count = getConsumerCount();
