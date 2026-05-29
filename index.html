@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Levantamento Coletivo – Cobranças Retroativas e Fiscalização em GD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <p class="eyebrow">Geração Distribuída • Neoenergia Coelba</p>
+      <h1>Levantamento Coletivo – Cobranças Retroativas e Fiscalização em Geração Distribuída</h1>
+      <p class="lead">
+        Este formulário reúne relatos de integradores e consumidores que passaram por inspeção,
+        cobrança retroativa, ausência de TOI regular, falta de informação sobre perícia ou outras
+        irregularidades procedimentais em casos de geração distribuída.
+      </p>
+      <div class="notice">
+        <strong>Importante:</strong> nesta primeira versão, os documentos não são enviados pelo site.
+        Os anexos devem ser organizados depois por e-mail, pasta compartilhada ou formulário documental separado.
+      </div>
+    </section>
+
+    <form id="caseForm" class="card">
+      <h2>1. Identificação do integrador</h2>
+
+      <div class="grid">
+        <label>Nome completo / Razão social
+          <input name="integrador_nome" required />
+        </label>
+
+        <label>CPF ou CNPJ
+          <input name="integrador_documento" required />
+        </label>
+
+        <label>Telefone / WhatsApp
+          <input name="integrador_telefone" required />
+        </label>
+
+        <label>E-mail
+          <input name="integrador_email" type="email" required />
+        </label>
+
+        <label>Cidade / UF
+          <input name="integrador_cidade_uf" required />
+        </label>
+
+        <label>Quantidade de consumidores neste envio
+          <select id="consumerCount" name="quantidade_consumidores" required>
+            <option value="1">1 consumidor</option>
+            <option value="2">2 consumidores</option>
+            <option value="3">3 consumidores</option>
+            <option value="4">4 consumidores</option>
+            <option value="5">5 consumidores</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="consumers"></div>
+
+      <section class="section">
+        <h2>Autorização geral</h2>
+
+        <label class="check">
+          <input type="checkbox" name="autorizacao_uso_dados" value="sim" required />
+          Autorizo o uso das informações para análise jurídica e eventual representação coletiva perante
+          Ministério Público, Procon, ANEEL e Poder Judiciário.
+        </label>
+
+        <label class="check">
+          <input type="checkbox" name="declaracao_veracidade" value="sim" required />
+          Declaro que as informações prestadas são verdadeiras, na medida do meu conhecimento.
+        </label>
+
+        <label>Observações gerais
+          <textarea name="observacoes_gerais" rows="4"></textarea>
+        </label>
+      </section>
+
+      <div class="actions">
+        <button id="submitBtn" type="submit">Enviar relato</button>
+        <p id="status" aria-live="polite"></p>
+      </div>
+    </form>
+  </main>
+
+  <template id="consumerTemplate">
+    <section class="section consumer-block">
+      <h2>Consumidor <span data-consumer-number></span></h2>
+
+      <h3>Identificação</h3>
+      <div class="grid">
+        <label>Nome completo / Razão social do consumidor
+          <input data-name="consumidor_nome" required />
+        </label>
+
+        <label>CPF ou CNPJ do consumidor
+          <input data-name="consumidor_documento" required />
+        </label>
+
+        <label>Telefone do consumidor
+          <input data-name="consumidor_telefone" required />
+        </label>
+
+        <label>E-mail do consumidor
+          <input data-name="consumidor_email" type="email" />
+        </label>
+
+        <label>Cidade / UF da unidade consumidora
+          <input data-name="consumidor_cidade_uf" required />
+        </label>
+
+        <label>Endereço da unidade consumidora
+          <input data-name="consumidor_endereco" required />
+        </label>
+
+        <label>Número da instalação / UC
+          <input data-name="consumidor_uc" required />
+        </label>
+
+        <label>Código do cliente
+          <input data-name="consumidor_codigo_cliente" />
+        </label>
+      </div>
+
+      <h3>Dados do caso</h3>
+      <div class="grid">
+        <label>Distribuidora
+          <select data-name="distribuidora" required>
+            <option value="Neoenergia Coelba">Neoenergia Coelba</option>
+            <option value="Outra">Outra</option>
+          </select>
+        </label>
+
+        <label>Data da inspeção
+          <input data-name="data_inspecao" type="date" />
+        </label>
+
+        <label>Houve aviso prévio?
+          <select data-name="houve_aviso_previo" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>O técnico se identificou?
+          <select data-name="tecnico_identificou" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Parcialmente</option>
+          </select>
+        </label>
+
+        <label>Foi entregue TOI no local?
+          <select data-name="toi_entregue" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Foi informada perícia/verificação metrológica?
+          <select data-name="pericia_informada" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Houve carta de cobrança retroativa?
+          <select data-name="carta_cobranca" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+          </select>
+        </label>
+
+        <label>Valor cobrado
+          <input data-name="valor_cobrado" placeholder="Ex.: R$ 12.345,67" />
+        </label>
+
+        <label>Número da carta, inspeção e/ou TOI
+          <input data-name="numero_carta_toi_inspecao" />
+        </label>
+
+        <label>Foi apresentado relatório técnico completo?
+          <select data-name="relatorio_tecnico" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Foi apresentado cálculo detalhado da cobrança?
+          <select data-name="calculo_detalhado" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+      </div>
+
+      <h3>Relato da inspeção</h3>
+      <label>Descreva como a inspeção aconteceu
+        <textarea data-name="relato_inspecao" rows="5" required></textarea>
+      </label>
+
+      <label>Havia testemunhas? Quem?
+        <textarea data-name="testemunhas" rows="3"></textarea>
+      </label>
+
+      <div class="grid">
+        <label>Entraram em área interna da residência ou propriedade?
+          <select data-name="entrada_area_interna" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Houve fotos, vídeos ou retirada de equipamento?
+          <select data-name="fotos_videos_retirada" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Se houve retirada, houve lacre e comprovante?
+          <select data-name="lacre_comprovante" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não se aplica</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+      </div>
+
+      <h3>Projeto e regularização</h3>
+      <div class="grid">
+        <label>Havia projeto aprovado anteriormente?
+          <select data-name="projeto_aprovado_anterior" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Houve aprovação de projeto posterior à notificação?
+          <select data-name="aprovacao_posterior" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Houve atualização de projeto?
+          <select data-name="atualizacao_projeto" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+
+        <label>Quando a atualização foi enviada?
+          <input data-name="data_envio_atualizacao" />
+        </label>
+
+        <label>Há protocolo, ART, e-mails ou documentos de envio?
+          <select data-name="documentos_regularizacao" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+          </select>
+        </label>
+
+        <label>A ampliação já estava em operação na inspeção?
+          <select data-name="ampliacao_em_operacao" required>
+            <option value="">Selecione</option>
+            <option>Sim</option>
+            <option>Não</option>
+            <option>Parcialmente</option>
+            <option>Não sei</option>
+          </select>
+        </label>
+      </div>
+
+      <label>Observações adicionais sobre regularização
+        <textarea data-name="observacoes_regularizacao" rows="4"></textarea>
+      </label>
+
+      <h3>Checklist de documentos disponíveis</h3>
+      <div class="checks">
+        <label><input type="checkbox" data-name="doc_carta_cobranca" value="sim" /> Carta de cobrança</label>
+        <label><input type="checkbox" data-name="doc_toi" value="sim" /> TOI</label>
+        <label><input type="checkbox" data-name="doc_contas_energia" value="sim" /> Contas de energia</label>
+        <label><input type="checkbox" data-name="doc_extrato_geracao" value="sim" /> Extrato de geração</label>
+        <label><input type="checkbox" data-name="doc_art_projeto_protocolos" value="sim" /> ART / projeto / protocolos / e-mails</label>
+        <label><input type="checkbox" data-name="doc_fotos_instalacoes" value="sim" /> Fotos das instalações</label>
+        <label><input type="checkbox" data-name="doc_parecer_acesso" value="sim" /> Parecer de acesso</label>
+        <label><input type="checkbox" data-name="doc_procuracao" value="sim" /> Procuração</label>
+      </div>
+    </section>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
