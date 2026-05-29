@@ -18,7 +18,7 @@
       </p>
       <div class="notice">
         <strong>Importante:</strong> os documentos anexados serão enviados para uma pasta no Google Drive
-        configurada no Apps Script, separados por envio e por consumidor.
+        configurada no Apps Script, organizados por integrador, consumidor e tipo de documento.
       </div>
     </section>
 
@@ -303,23 +303,81 @@
       </label>
 
       <h3>Checklist de documentos disponíveis</h3>
-      <div class="checks">
-        <label><input type="checkbox" data-name="doc_carta_cobranca" value="sim" /> Carta de cobrança</label>
-        <label><input type="checkbox" data-name="doc_toi" value="sim" /> TOI</label>
-        <label><input type="checkbox" data-name="doc_contas_energia" value="sim" /> Contas de energia</label>
-        <label><input type="checkbox" data-name="doc_extrato_geracao" value="sim" /> Extrato de geração</label>
-        <label><input type="checkbox" data-name="doc_art_projeto_protocolos" value="sim" /> ART / projeto / protocolos / e-mails</label>
-        <label><input type="checkbox" data-name="doc_fotos_instalacoes" value="sim" /> Fotos das instalações</label>
-        <label><input type="checkbox" data-name="doc_parecer_acesso" value="sim" /> Parecer de acesso</label>
-        <label><input type="checkbox" data-name="doc_procuracao" value="sim" /> Procuração</label>
-      </div>
+      <div class="document-checks">
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_carta_cobranca" data-upload-target="carta_cobranca" value="sim" /> Carta de cobrança</label>
+          <div class="document-upload is-hidden" data-upload-for="carta_cobranca">
+            <label>Anexar carta de cobrança
+              <input data-name="arquivo_carta_cobranca" data-document-key="carta_cobranca" data-document-label="Carta de cobrança" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
 
-      <h3>Anexos do consumidor</h3>
-      <label>Enviar documentos
-        <input data-name="arquivos" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" />
-      </label>
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_toi" data-upload-target="toi" value="sim" /> TOI</label>
+          <div class="document-upload is-hidden" data-upload-for="toi">
+            <label>Anexar TOI
+              <input data-name="arquivo_toi" data-document-key="toi" data-document-label="TOI" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_contas_energia" data-upload-target="contas_energia" value="sim" /> Contas de energia</label>
+          <div class="document-upload is-hidden" data-upload-for="contas_energia">
+            <label>Anexar contas de energia
+              <input data-name="arquivo_contas_energia" data-document-key="contas_energia" data-document-label="Contas de energia" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_extrato_geracao" data-upload-target="extrato_geracao" value="sim" /> Extrato de geração</label>
+          <div class="document-upload is-hidden" data-upload-for="extrato_geracao">
+            <label>Anexar extrato de geração
+              <input data-name="arquivo_extrato_geracao" data-document-key="extrato_geracao" data-document-label="Extrato de geração" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_art_projeto_protocolos" data-upload-target="art_projeto_protocolos" value="sim" /> ART / projeto / protocolos / e-mails</label>
+          <div class="document-upload is-hidden" data-upload-for="art_projeto_protocolos">
+            <label>Anexar ART, projeto, protocolos ou e-mails
+              <input data-name="arquivo_art_projeto_protocolos" data-document-key="art_projeto_protocolos" data-document-label="ART / projeto / protocolos / e-mails" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_fotos_instalacoes" data-upload-target="fotos_instalacoes" value="sim" /> Fotos das instalações</label>
+          <div class="document-upload is-hidden" data-upload-for="fotos_instalacoes">
+            <label>Anexar fotos das instalações
+              <input data-name="arquivo_fotos_instalacoes" data-document-key="fotos_instalacoes" data-document-label="Fotos das instalações" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_parecer_acesso" data-upload-target="parecer_acesso" value="sim" /> Parecer de acesso</label>
+          <div class="document-upload is-hidden" data-upload-for="parecer_acesso">
+            <label>Anexar parecer de acesso
+              <input data-name="arquivo_parecer_acesso" data-document-key="parecer_acesso" data-document-label="Parecer de acesso" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+
+        <div class="document-item">
+          <label><input type="checkbox" data-name="doc_procuracao" data-upload-target="procuracao" value="sim" /> Procuração</label>
+          <div class="document-upload is-hidden" data-upload-for="procuracao">
+            <label>Anexar procuração
+              <input data-name="arquivo_procuracao" data-document-key="procuracao" data-document-label="Procuração" type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx,.xls,.xlsx" disabled />
+            </label>
+          </div>
+        </div>
+      </div>
       <p class="help-text">
-        Envie PDF, imagens ou documentos. Para arquivos muito grandes, prefira dividir em mais de um envio.
+        Marque um item para abrir o campo de anexos correspondente. Cada item aceita vários arquivos.
       </p>
     </section>
   </template>

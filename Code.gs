@@ -73,8 +73,9 @@ function saveUploadedFiles_(payload) {
   }
 
   const rootFolder = DriveApp.getFolderById(DRIVE_ROOT_FOLDER_ID);
-  const submissionFolder = rootFolder.createFolder(buildSubmissionFolderName_(payload));
+  const integratorFolder = getOrCreateChildFolder_(rootFolder, buildIntegratorFolderName_(payload));
   const consumerFolders = {};
+  const documentFolders = {};
   const fileLinks = [];
 
   files.forEach(fileData => {
@@ -82,8 +83,19 @@ function saveUploadedFiles_(payload) {
     const folderKey = consumerIndex > 0 ? String(consumerIndex) : "geral";
 
     if (!consumerFolders[folderKey]) {
-      const folderName = consumerIndex > 0 ? `Consumidor ${consumerIndex}` : "Arquivos gerais";
-      consumerFolders[folderKey] = submissionFolder.createFolder(folderName);
+      const folderName = consumerIndex > 0 ? buildConsumerFolderName_(payload, consumerIndex) : "Arquivos gerais";
+      consumerFolders[folderKey] = getOrCreateChildFolder_(integratorFolder, folderName);
+    }
+
+    const documentKey = fileData.document_key || "outros";
+    const documentLabel = fileData.document_label || "Outros documentos";
+    const documentFolderKey = `${folderKey}:${documentKey}`;
+
+    if (!documentFolders[documentFolderKey]) {
+      documentFolders[documentFolderKey] = getOrCreateChildFolder_(
+        consumerFolders[folderKey],
+        sanitizeFileName_(documentLabel)
+      );
     }
 
     const blob = Utilities.newBlob(
@@ -92,23 +104,42 @@ function saveUploadedFiles_(payload) {
       sanitizeFileName_(fileData.name || "arquivo")
     );
 
-    const createdFile = consumerFolders[folderKey].createFile(blob);
-    fileLinks.push(`${createdFile.getName()}: ${createdFile.getUrl()}`);
+    const createdFile = documentFolders[documentFolderKey].createFile(blob);
+    fileLinks.push(`${consumerFolders[folderKey].getName()} / ${documentFolders[documentFolderKey].getName()} / ${createdFile.getName()}: ${createdFile.getUrl()}`);
   });
 
   return {
-    folderUrl: submissionFolder.getUrl(),
+    folderUrl: integratorFolder.getUrl(),
     fileCount: fileLinks.length,
     fileLinks
   };
 }
 
-function buildSubmissionFolderName_(payload) {
-  const date = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "yyyy-MM-dd HH-mm-ss");
+function buildIntegratorFolderName_(payload) {
   const integrador = sanitizeFileName_(payload.integrador_nome || "integrador");
   const documento = sanitizeFileName_(payload.integrador_documento || "sem-documento");
 
-  return `${date} - ${integrador} - ${documento}`;
+  return `${documento} - ${integrador}`;
+}
+
+function buildConsumerFolderName_(payload, consumerIndex) {
+  const prefix = `c${consumerIndex}_`;
+  const nome = sanitizeFileName_(payload[`${prefix}consumidor_nome`] || `Consumidor ${consumerIndex}`);
+  const documento = sanitizeFileName_(payload[`${prefix}consumidor_documento`] || "sem-documento");
+  const uc = sanitizeFileName_(payload[`${prefix}consumidor_uc`] || "sem-uc");
+
+  return `${documento} - ${nome} - UC ${uc}`;
+}
+
+function getOrCreateChildFolder_(parentFolder, folderName) {
+  const safeName = sanitizeFileName_(folderName);
+  const folders = parentFolder.getFoldersByName(safeName);
+
+  if (folders.hasNext()) {
+    return folders.next();
+  }
+
+  return parentFolder.createFolder(safeName);
 }
 
 function sanitizeFileName_(name) {

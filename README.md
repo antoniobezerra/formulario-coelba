@@ -42,7 +42,7 @@ Este projeto publica um formulário estático no GitHub Pages, grava as resposta
    `COLE_AQUI_O_ID_DA_PASTA_DO_DRIVE`
    pelo ID real da pasta.
 
-O Apps Script criará uma pasta para cada envio e, dentro dela, subpastas por consumidor.
+O Apps Script criará ou reaproveitará uma pasta por integrador, usando CPF/CNPJ e nome. Dentro dela, criará ou reaproveitará uma pasta por consumidor e subpastas por tipo de documento.
 
 ## Como publicar o Apps Script como Web App
 
@@ -67,6 +67,6 @@ pela URL real do Web App.
 
 ## Observação sobre anexos
 
-Cada consumidor tem um campo para anexar arquivos. O envio aceita PDF, imagens, Word e Excel.
+Cada consumidor tem anexos separados por item do checklist. Ao marcar Carta de cobrança, TOI, Contas de energia ou outro item, o campo de upload daquele item aparece. Cada item aceita vários arquivos.
 
 Para evitar falhas no Apps Script, o site bloqueia arquivos acima de 10 MB. Se houver muitos documentos ou arquivos pesados, divida em mais de um envio.

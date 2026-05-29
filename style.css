@@ -188,21 +188,40 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
 }
 
-.check, .checks label {
+.check,
+.document-item > label {
   font-weight: 500;
   flex-direction: row;
   align-items: flex-start;
 }
 
-.check input, .checks input {
+.check input,
+.document-item > label input {
   width: auto;
   margin-top: 4px;
 }
 
-.checks {
+.document-checks {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px 18px;
+}
+
+.document-item {
+  border: 1px solid #d7e3f2;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.document-upload {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e7edf6;
+}
+
+.document-upload.is-hidden {
+  display: none;
 }
 
 .actions {
@@ -254,5 +273,5 @@ button:disabled {
 @media (max-width: 760px) {
   .page { width: min(100% - 20px, 1120px); padding-top: 12px; }
   .hero, .card, .section { padding: 18px; border-radius: 18px; }
-  .grid, .checks { grid-template-columns: 1fr; }
+  .grid, .document-checks { grid-template-columns: 1fr; }
 }

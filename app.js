@@ -41,6 +41,7 @@ function createConsumerBlock(index) {
     field.required = false;
   });
 
+  setupDocumentUploads(block);
   consumersRoot.appendChild(clone);
 }
 
@@ -111,6 +112,33 @@ function addConsumer() {
   syncConsumers();
 }
 
+function setupDocumentUploads(block) {
+  block.querySelectorAll("[data-upload-target]").forEach((checkbox) => {
+    const uploadKey = checkbox.dataset.uploadTarget;
+    const upload = block.querySelector(`[data-upload-for="${uploadKey}"]`);
+    const fileInput = upload ? upload.querySelector("input[type='file']") : null;
+
+    function syncUploadVisibility() {
+      const isChecked = checkbox.checked;
+
+      if (upload) {
+        upload.classList.toggle("is-hidden", !isChecked);
+      }
+
+      if (fileInput) {
+        fileInput.disabled = !isChecked;
+
+        if (!isChecked) {
+          fileInput.value = "";
+        }
+      }
+    }
+
+    checkbox.addEventListener("change", syncUploadVisibility);
+    syncUploadVisibility();
+  });
+}
+
 function formToPayload(formEl) {
   const fd = new FormData(formEl);
   const payload = {};
@@ -150,7 +178,7 @@ function validateConsumers() {
   return true;
 }
 
-function fileToPayload(file, consumerIndex) {
+function fileToPayload(file, consumerIndex, documentKey, documentLabel) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
@@ -160,6 +188,8 @@ function fileToPayload(file, consumerIndex) {
 
       resolve({
         consumer_index: consumerIndex,
+        document_key: documentKey,
+        document_label: documentLabel,
         name: file.name,
         type: file.type || "application/octet-stream",
         size: file.size,
@@ -177,14 +207,20 @@ async function collectFiles() {
   const maxSize = MAX_FILE_SIZE_MB * 1024 * 1024;
 
   for (const input of form.querySelectorAll("input[type='file'][name]")) {
+    if (input.disabled) {
+      continue;
+    }
+
     const consumerIndex = Number(input.name.match(/^c(\d+)_/)?.[1] || 0);
+    const documentKey = input.dataset.documentKey || "outros";
+    const documentLabel = input.dataset.documentLabel || "Outros documentos";
 
     for (const file of input.files) {
       if (file.size > maxSize) {
         throw new Error(`O arquivo ${file.name} passa de ${MAX_FILE_SIZE_MB} MB.`);
       }
 
-      files.push(await fileToPayload(file, consumerIndex));
+      files.push(await fileToPayload(file, consumerIndex, documentKey, documentLabel));
     }
   }
 
