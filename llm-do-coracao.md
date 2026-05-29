@@ -1,124 +1,131 @@
-# LLM do coracao - guia para colocar o formulario para rodar
+# LLM do coracao - guia para rodar e atualizar o formulario
 
-Este guia explica como publicar, configurar e atualizar o formulario Coelba.
+Este guia e para qualquer pessoa ou agente continuar o projeto sem se perder. O formulario roda como site estatico no GitHub Pages, envia os dados para um Web App do Google Apps Script, grava tudo no Google Sheets e organiza anexos/documentos no Google Drive.
 
-## 1. O que ja existe
+Nao coloque IDs reais de planilha, pasta ou Apps Script neste arquivo. Use placeholders nas instrucoes e mantenha os valores reais apenas nos arquivos de configuracao/producao.
 
-- Site no GitHub Pages:
+## 1. Estado atual do projeto
+
+- Site publico:
   `https://antoniobezerra.github.io/formulario-coelba/`
 - Repositorio:
   `https://github.com/antoniobezerra/formulario-coelba`
-- Planilha e pasta do Drive devem ser configuradas no `Code.gs` com os IDs reais do seu projeto.
+- Branch de producao:
+  `main`
+- O modo teste local foi removido.
+- O site usa diretamente a URL final do Apps Script configurada em `app.js`.
 
 ## 2. Arquivos importantes
 
 - `index.html`: estrutura do formulario.
 - `style.css`: visual do formulario.
-- `app.js`: comportamento do site e URL do Apps Script.
-- `Code.gs`: codigo que roda no Google Apps Script, grava na planilha e salva anexos no Drive.
+- `app.js`: comportamento do formulario, validacoes, anexos, modal de envio e URL do Apps Script.
+- `Code.gs`: backend no Google Apps Script; recebe o envio, grava na planilha, cria pastas no Drive, salva anexos e gera Google Docs por consumidor.
+- `README.md`: instrucoes gerais do projeto.
+- `llm-do-coracao.md`: este guia operacional.
 
-## 3. Configurar o Apps Script
+## 3. Como o fluxo funciona
 
-Antes de mexer na producao, divida o trabalho em tres frentes. Se estiver usando agentes/assistentes, peça um agente para cada frente:
+```txt
+Usuario preenche no GitHub Pages
+  -> app.js valida dados e envia JSON para o Apps Script
+  -> Code.gs recebe o envio
+  -> cria/reaproveita a pasta do integrador no Drive
+  -> cria/reaproveita a pasta de cada consumidor
+  -> salva anexos por tipo de documento
+  -> cria um Google Docs organizado para cada consumidor
+  -> grava a resposta e links no Google Sheets
+```
 
-- Agente Drive: confirmar ou criar a pasta raiz no Google Drive e entregar o `DRIVE_ROOT_FOLDER_ID`.
-- Agente Planilha: confirmar ou criar a planilha no Google Sheets e entregar o `SPREADSHEET_ID`.
-- Agente Apps Script: colar o `Code.gs`, publicar como Web App, autorizar Drive/Sheets e entregar a URL final terminada em `/exec`.
+O documento de cada consumidor funciona como um resumo preenchido do formulario, com secoes organizadas e area de assinatura para:
 
-No caso deste projeto, se o usuario ja enviou a pasta do Drive e a planilha, use esses links para extrair os IDs. Nao invente IDs e nao deixe placeholders em producao.
+- consumidor;
+- integrador/responsavel pelo envio.
 
-1. Abra a planilha do Google Sheets.
-2. Va em `Extensoes > Apps Script`.
-3. Apague o conteudo antigo do editor.
-4. Cole todo o conteudo do arquivo `Code.gs`.
-5. Confirme que estas duas linhas estao preenchidas:
+## 4. Configuracoes obrigatorias no `Code.gs`
+
+No Apps Script, confira se estas constantes estao preenchidas com valores reais:
 
 ```js
 const SPREADSHEET_ID = "ID_DA_PLANILHA";
 const DRIVE_ROOT_FOLDER_ID = "ID_DA_PASTA_DO_DRIVE";
 ```
 
-6. Salve o projeto.
-
-## 4. Publicar o Apps Script como Web App
-
-1. No Apps Script, clique em `Deploy > New deployment`.
-2. Em tipo de deploy, escolha `Web app`.
-3. Configure:
-   - `Execute as`: `Me`
-   - `Who has access`: `Anyone`
-4. Clique em `Deploy`.
-5. Autorize as permissoes solicitadas.
-6. Copie a URL do Web App.
-
-A URL correta deve parecer com isto:
+Use IDs extraidos das URLs do Google:
 
 ```txt
-https://script.google.com/macros/s/AKfycb.../exec
+https://docs.google.com/spreadsheets/d/ID_DA_PLANILHA/edit
+https://drive.google.com/drive/folders/ID_DA_PASTA_DO_DRIVE
 ```
 
-Ela precisa terminar em `/exec`.
+Nunca invente ID e nunca publique placeholder em producao.
 
-## 5. Colocar a URL do Apps Script no site
+## 5. Configuracao obrigatoria no `app.js`
 
-Abra `app.js` e substitua:
-
-```js
-const APPS_SCRIPT_WEB_APP_URL = "COLE_AQUI_A_URL_DO_WEB_APP_DO_APPS_SCRIPT";
-```
-
-por:
+No `app.js`, a constante abaixo precisa ter a URL real do Web App do Apps Script:
 
 ```js
 const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycb.../exec";
 ```
 
-Depois salve, faca commit e envie para o GitHub:
+A URL precisa terminar em `/exec`.
+
+Se aparecer a mensagem:
+
+```txt
+Configure a URL do Apps Script no arquivo app.js antes de enviar.
+```
+
+significa que o `app.js` ainda esta com placeholder ou URL invalida.
+
+## 6. Publicar ou atualizar o Apps Script
+
+Sempre que mudar `Code.gs`:
+
+1. Abra o projeto no Google Apps Script.
+2. Substitua todo o conteudo do arquivo `Codigo.gs` pelo conteudo local de `Code.gs`.
+3. Salve.
+4. Se houver nova permissao, execute uma funcao de autorizacao ou qualquer funcao que force o pedido de permissao.
+5. Va em `Implantar > Gerenciar implantacoes`.
+6. Edite a implantacao ativa.
+7. Em versao, selecione `Nova versao`.
+8. Coloque uma descricao curta.
+9. Clique em `Implantar`.
+10. Mantenha a mesma URL `/exec` sempre que possivel.
+
+Permissoes esperadas:
+
+- Google Sheets, para gravar respostas;
+- Google Drive, para criar pastas e salvar anexos;
+- Google Docs, para gerar o documento/resumo do consumidor.
+
+## 7. Publicar ou atualizar o GitHub Pages
+
+Depois de mudar `index.html`, `style.css`, `app.js`, `README.md` ou este guia:
 
 ```bash
-git add app.js
-git commit -m "Configure Apps Script web app URL"
+git add .
+git commit -m "Descricao curta da mudanca"
 git push
 ```
 
-## 6. Atualizar o site no GitHub Pages
-
-O GitHub Pages usa a branch `main`. Depois do `git push`, aguarde alguns minutos.
-
-URL publica:
+O GitHub Pages publica a branch `main`. Aguarde alguns minutos e abra:
 
 ```txt
 https://antoniobezerra.github.io/formulario-coelba/
 ```
 
-Se o site nao atualizar na hora, recarregue com cache limpo.
+Se parecer desatualizado, recarregue sem cache.
 
-## 7. Testar localmente
+## 8. Organizacao no Google Drive
 
-Na pasta do projeto, rode:
-
-```bash
-python3 -m http.server 4173
-```
-
-Abra:
-
-```txt
-http://127.0.0.1:4173/
-```
-
-No ambiente local aparece o botao `Preencher dados de teste`. Ele nao aparece no GitHub Pages publico.
-
-Use esse botao para preencher os campos obrigatorios, marque um documento, anexe um arquivo pequeno e clique em `Enviar relato`.
-
-## 8. Como os arquivos ficam organizados no Drive
-
-O Apps Script salva os anexos assim:
+O `Code.gs` organiza assim:
 
 ```txt
 Pasta raiz configurada
   CPF-CNPJ - Nome do integrador
     CPF-CNPJ - Nome do consumidor - UC numero
+      Resumo do relato - Nome do consumidor
       Carta de cobranca
       TOI
       Contas de energia
@@ -129,24 +136,45 @@ Pasta raiz configurada
       Procuracao
 ```
 
-## 9. Atualizar o Apps Script depois de mudar `Code.gs`
+Cada item do checklist pode receber varios arquivos.
 
-Sempre que `Code.gs` mudar:
+## 9. Teste de producao
 
-1. Abra o Apps Script.
-2. Cole a nova versao de `Code.gs`.
-3. Salve.
-4. Crie um novo deployment ou atualize o deployment existente.
-5. Se a URL `/exec` mudar, atualize tambem o `app.js`.
+Nao existe mais botao de preenchimento automatico no site.
 
-## 10. Erro comum
+Para testar producao:
 
-Se aparecer:
+1. Abra o GitHub Pages publico.
+2. Preencha um envio real ou um envio claramente identificado como teste.
+3. Use pelo menos um consumidor.
+4. Opcionalmente marque um item do checklist e anexe arquivo pequeno.
+5. Clique em `Enviar relato`.
+6. Confirme:
+   - resposta apareceu na planilha;
+   - pasta do integrador apareceu no Drive;
+   - pasta do consumidor apareceu dentro da pasta do integrador;
+   - Google Docs do consumidor foi criado;
+   - anexos, se enviados, ficaram nas subpastas certas.
 
-```txt
-Configure a URL do Apps Script no arquivo app.js antes de enviar.
-```
+Depois do teste, se necessario, apague manualmente a linha/pastas de teste no Google Sheets e Drive.
 
-significa que a linha `APPS_SCRIPT_WEB_APP_URL` ainda esta com o texto `COLE_AQUI`.
+## 10. Divisao de trabalho com agentes
 
-Corrija colocando a URL do Web App do Apps Script no `app.js`.
+Se for pedir ajuda para agentes, divida em tres frentes:
+
+- Agente Drive: conferir pasta raiz, permissoes e organizacao das pastas.
+- Agente Planilha: conferir colunas, linhas recebidas e links gravados.
+- Agente Apps Script: conferir `Code.gs`, autorizacoes, deploy e URL `/exec`.
+
+Um quarto agente pode cuidar do GitHub Pages:
+
+- Agente GitHub: conferir `app.js`, `index.html`, commit, push e publicacao no Pages.
+
+## 11. Cuidados importantes
+
+- Nao exponha IDs reais neste guia.
+- Nao volte o modo teste local para producao.
+- Nao troque a URL do Apps Script no `app.js` sem atualizar e testar.
+- Se alterar `Code.gs`, precisa atualizar o deploy do Apps Script; apenas salvar o editor nao atualiza a URL publica.
+- Arquivos grandes podem falhar no Apps Script; o frontend limita anexos a 10 MB por arquivo.
+- O Apps Script deve estar como Web App com acesso para `Anyone` e executando como o dono do projeto.
