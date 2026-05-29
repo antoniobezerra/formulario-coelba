@@ -1,6 +1,6 @@
 // 1) Publique o Apps Script como Web App.
 // 2) Cole a URL aqui:
-const APPS_SCRIPT_WEB_APP_URL = "COLE_AQUI_A_URL_DO_WEB_APP_DO_APPS_SCRIPT";
+const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzyYQh3UXGbKu3UIZ7Akzq2m69MFGxWPgfGw5Zzq5Gu7ny5ztpv_CtnaeteiOw0W1CazQ/exec";
 
 const form = document.querySelector("#caseForm");
 const consumersRoot = document.querySelector("#consumers");
