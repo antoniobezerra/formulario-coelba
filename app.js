@@ -401,7 +401,7 @@ function showSubmissionSuccess() {
   submissionModalEyebrow.textContent = "Envio confirmado";
   setSubmissionMessage(
     "Levantamento enviado, agora é com agente!!",
-    "Emoção! Recebemos o relato e os arquivos já seguiram para a organização.",
+    "Recebemos o relato e os arquivos já seguiram para a organização.",
     submissionStepEls.length - 1,
     "success"
   );
@@ -888,7 +888,7 @@ async function submitForm(event) {
     syncConsumers();
 
     statusEl.className = "ok";
-    statusEl.textContent = "Levantamento enviado, agora é com agente!! Emoção!";
+    statusEl.textContent = "Levantamento enviado, agora é com agente!!";
     showSubmissionSuccess();
   } catch (error) {
     console.error(error);
