@@ -190,7 +190,15 @@ function isFieldComplete(field) {
     return field.checked;
   }
 
-  return String(field.value || "").trim().length > 0 && field.validity.valid;
+  return field.dataset.finalized === "true" && String(field.value || "").trim().length > 0 && field.validity.valid;
+}
+
+function isFieldInProgress(field) {
+  if (field.type === "checkbox" || field.type === "radio") {
+    return false;
+  }
+
+  return field.dataset.finalized !== "true" && String(field.value || "").trim().length > 0;
 }
 
 function updateFieldCompletion(field) {
@@ -201,6 +209,7 @@ function updateFieldCompletion(field) {
   }
 
   label.classList.toggle("is-complete", isFieldComplete(field));
+  label.classList.toggle("is-filling", isFieldInProgress(field));
 }
 
 function updateProgress() {
@@ -323,6 +332,36 @@ function addConsumer() {
   consumerCount.value = String(nextCount);
   activeConsumer = nextCount;
   syncConsumers();
+}
+
+function markFieldEditing(event) {
+  const field = event.target;
+
+  if (!field.matches("input, select, textarea")) {
+    return;
+  }
+
+  if (field.type !== "checkbox" && field.type !== "radio") {
+    field.dataset.finalized = "false";
+  }
+
+  updateProgress();
+}
+
+function markFieldFinalized(event) {
+  const field = event.target;
+
+  if (!field.matches("input, select, textarea")) {
+    return;
+  }
+
+  if (String(field.value || "").trim().length > 0 || field.checked) {
+    field.dataset.finalized = "true";
+  } else {
+    delete field.dataset.finalized;
+  }
+
+  updateProgress();
 }
 
 function setupDocumentUploads(block) {
@@ -518,9 +557,9 @@ async function submitForm(event) {
 
 addConsumerBtn.addEventListener("click", addConsumer);
 form.addEventListener("submit", submitForm);
-form.addEventListener("input", updateProgress);
-form.addEventListener("change", updateProgress);
-form.addEventListener("focusout", updateProgress);
+form.addEventListener("input", markFieldEditing);
+form.addEventListener("change", markFieldFinalized);
+form.addEventListener("focusout", markFieldFinalized);
 setupCpfCnpjFields();
 setupPhoneFields();
 syncConsumers();

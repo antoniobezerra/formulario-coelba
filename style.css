@@ -203,12 +203,24 @@ label.is-complete {
   color: #0b5c3f;
 }
 
+label.is-filling {
+  color: #7a4b00;
+}
+
 label.is-complete input,
 label.is-complete select,
 label.is-complete textarea {
   border-color: rgba(6, 118, 71, .55);
   background: #f2fbf7;
   box-shadow: inset 4px 0 0 rgba(6, 118, 71, .28);
+}
+
+label.is-filling input,
+label.is-filling select,
+label.is-filling textarea {
+  border-color: rgba(217, 119, 6, .55);
+  background: #fff8ed;
+  box-shadow: inset 4px 0 0 rgba(217, 119, 6, .26);
 }
 
 label.is-complete::after {
@@ -218,6 +230,17 @@ label.is-complete::after {
   padding: 3px 8px;
   background: #e3f8ed;
   color: var(--success);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+label.is-filling::after {
+  content: "Em preenchimento";
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #fff1d6;
+  color: #9a5b00;
   font-size: 12px;
   font-weight: 800;
 }
