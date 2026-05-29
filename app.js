@@ -264,10 +264,14 @@ function updateContinuationGate() {
   updateProgress();
 }
 
-function setFieldValue(selector, value) {
+function setFieldValue(selector, value, options = {}) {
   const field = form.querySelector(selector);
 
   if (!field) {
+    return;
+  }
+
+  if (options.onlyIfEmpty && field.value.trim()) {
     return;
   }
 
@@ -290,11 +294,13 @@ function setChecked(selector, checked = true) {
 }
 
 function fillTestData() {
-  setFieldValue("[name='integrador_nome']", "Integrador Teste");
-  setFieldValue("[name='integrador_documento']", "11.222.333/0001-81");
-  setFieldValue("[name='integrador_telefone']", "(71) 99999-8888");
-  setFieldValue("[name='integrador_email']", "teste@example.com");
-  setFieldValue("[name='integrador_cidade_uf']", "Salvador / BA");
+  const preserveExisting = { onlyIfEmpty: true };
+
+  setFieldValue("[name='integrador_nome']", "Integrador Teste", preserveExisting);
+  setFieldValue("[name='integrador_documento']", "11.222.333/0001-81", preserveExisting);
+  setFieldValue("[name='integrador_telefone']", "(71) 99999-8888", preserveExisting);
+  setFieldValue("[name='integrador_email']", "teste@example.com", preserveExisting);
+  setFieldValue("[name='integrador_cidade_uf']", "Salvador / BA", preserveExisting);
 
   updateContinuationGate();
   setActiveConsumer(activeConsumer);
@@ -328,7 +334,7 @@ function fillTestData() {
 
   updateProgress();
   statusEl.className = "ok";
-  statusEl.textContent = "Dados de teste preenchidos. Agora anexe um arquivo e envie.";
+  statusEl.textContent = "Dados de teste preenchidos sem trocar os dados do integrador já informados.";
 }
 
 function setupDevTools() {
