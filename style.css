@@ -406,6 +406,130 @@ button:disabled {
 #status.ok { color: var(--success); }
 #status.err { color: var(--danger); }
 
+.submission-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(15, 23, 42, .56);
+  backdrop-filter: blur(7px);
+}
+
+.submission-modal[hidden] {
+  display: none;
+}
+
+.submission-panel {
+  width: min(470px, 100%);
+  border: 1px solid rgba(185, 212, 246, .95);
+  border-radius: 18px;
+  padding: 28px;
+  background: #fff;
+  box-shadow: 0 28px 80px rgba(15, 23, 42, .28);
+  text-align: center;
+}
+
+.submission-loader {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-bottom: 18px;
+}
+
+.submission-loader span {
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: var(--primary);
+  animation: submissionPulse .9s ease-in-out infinite;
+}
+
+.submission-loader span:nth-child(2) {
+  animation-delay: .14s;
+}
+
+.submission-loader span:nth-child(3) {
+  animation-delay: .28s;
+}
+
+.submission-eyebrow {
+  margin: 0 0 8px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+}
+
+.submission-panel h2 {
+  margin-bottom: 10px;
+}
+
+.submission-panel p:not(.submission-eyebrow) {
+  margin: 0 auto;
+  max-width: 360px;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.submission-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 7px;
+  margin: 22px 0 0;
+}
+
+.submission-steps span {
+  height: 8px;
+  border-radius: 999px;
+  background: #dbe5f1;
+}
+
+.submission-steps span.is-active {
+  background: var(--primary);
+}
+
+.submission-modal.is-success .submission-loader span {
+  background: var(--success);
+  animation: none;
+}
+
+.submission-modal.is-error .submission-loader span {
+  background: var(--danger);
+  animation: none;
+}
+
+.submission-modal.is-success .submission-eyebrow,
+.submission-modal.is-success .submission-panel h2 {
+  color: var(--success);
+}
+
+.submission-modal.is-error .submission-eyebrow,
+.submission-modal.is-error .submission-panel h2 {
+  color: var(--danger);
+}
+
+.submission-modal.is-success .submission-steps span {
+  background: var(--success);
+}
+
+.submission-panel .secondary-btn {
+  margin-top: 22px;
+}
+
+@keyframes submissionPulse {
+  0%, 100% {
+    opacity: .35;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+}
+
 .progress-footer {
   position: fixed;
   left: 50%;

@@ -20,10 +20,40 @@ const devTools = document.querySelector("#devTools");
 const fillTestDataBtn = document.querySelector("#fillTestDataBtn");
 const localAppsScriptUrl = document.querySelector("#localAppsScriptUrl");
 const saveLocalAppsScriptUrlBtn = document.querySelector("#saveLocalAppsScriptUrlBtn");
+const submissionModal = document.querySelector("#submissionModal");
+const submissionModalEyebrow = document.querySelector("#submissionModalEyebrow");
+const submissionModalTitle = document.querySelector("#submissionModalTitle");
+const submissionModalMessage = document.querySelector("#submissionModalMessage");
+const submissionModalClose = document.querySelector("#submissionModalClose");
+const submissionStepEls = [...document.querySelectorAll(".submission-steps span")];
 
 const MAX_FILE_SIZE_MB = 10;
 const LOCAL_APPS_SCRIPT_URL_KEY = "formularioCoelbaAppsScriptUrl";
+const SUBMISSION_MESSAGES = [
+  {
+    title: "Estamos verificando tudo",
+    message: "Conferindo os dados principais antes de seguir."
+  },
+  {
+    title: "Organizando os relatos",
+    message: "Separando integrador, consumidores e documentos."
+  },
+  {
+    title: "Juntando os anexos",
+    message: "Preparando os arquivos para ficarem nas pastas certas."
+  },
+  {
+    title: "Enviando com cuidado",
+    message: "Gravando na planilha e salvando no Drive."
+  },
+  {
+    title: "Quase lá",
+    message: "Só mais um pouco. Estamos fechando o envio."
+  }
+];
 let activeConsumer = 1;
+let submissionMessageTimer = null;
+let submissionMessageIndex = 0;
 
 function onlyDigits(value) {
   return String(value || "").replace(/\D/g, "");
@@ -312,6 +342,87 @@ function setupDevTools() {
   localAppsScriptUrl.value = localStorage.getItem(LOCAL_APPS_SCRIPT_URL_KEY) || "";
   saveLocalAppsScriptUrlBtn.addEventListener("click", saveLocalAppsScriptUrl);
   fillTestDataBtn.addEventListener("click", fillTestData);
+}
+
+function setSubmissionStep(index) {
+  submissionStepEls.forEach((step, stepIndex) => {
+    step.classList.toggle("is-active", stepIndex <= index);
+  });
+}
+
+function setSubmissionMessage(title, message, stepIndex = 0, state = "") {
+  if (!submissionModal) {
+    return;
+  }
+
+  submissionModal.classList.toggle("is-success", state === "success");
+  submissionModal.classList.toggle("is-error", state === "error");
+  submissionModalTitle.textContent = title;
+  submissionModalMessage.textContent = message;
+  setSubmissionStep(stepIndex);
+}
+
+function stopSubmissionMessages() {
+  window.clearInterval(submissionMessageTimer);
+  submissionMessageTimer = null;
+}
+
+function showSubmissionModal() {
+  if (!submissionModal) {
+    return;
+  }
+
+  stopSubmissionMessages();
+  submissionMessageIndex = 0;
+  submissionModal.hidden = false;
+  submissionModalClose.hidden = true;
+  submissionModalEyebrow.textContent = "Envio em andamento";
+  setSubmissionMessage(
+    SUBMISSION_MESSAGES[0].title,
+    SUBMISSION_MESSAGES[0].message,
+    0
+  );
+
+  submissionMessageTimer = window.setInterval(() => {
+    submissionMessageIndex = Math.min(submissionMessageIndex + 1, SUBMISSION_MESSAGES.length - 1);
+    const nextMessage = SUBMISSION_MESSAGES[submissionMessageIndex];
+    const stepIndex = Math.min(submissionMessageIndex, submissionStepEls.length - 1);
+    setSubmissionMessage(nextMessage.title, nextMessage.message, stepIndex);
+  }, 1600);
+}
+
+function updateSubmissionModal(title, message, stepIndex) {
+  stopSubmissionMessages();
+  setSubmissionMessage(title, message, stepIndex);
+}
+
+function showSubmissionSuccess() {
+  stopSubmissionMessages();
+  submissionModalEyebrow.textContent = "Envio confirmado";
+  setSubmissionMessage(
+    "Levantamento enviado, agora é com agente!!",
+    "Emoção! Recebemos o relato e os arquivos já seguiram para a organização.",
+    submissionStepEls.length - 1,
+    "success"
+  );
+  submissionModalClose.hidden = false;
+}
+
+function showSubmissionError(message) {
+  stopSubmissionMessages();
+  submissionModalEyebrow.textContent = "Envio não concluído";
+  setSubmissionMessage(
+    "Não deu para finalizar agora",
+    message || "Confira a conexão e tente novamente.",
+    0,
+    "error"
+  );
+  submissionModalClose.hidden = false;
+}
+
+function hideSubmissionModal() {
+  stopSubmissionMessages();
+  submissionModal.hidden = true;
 }
 
 function getAppsScriptWebAppUrl() {
@@ -732,13 +843,21 @@ async function submitForm(event) {
 
   submitBtn.disabled = true;
   statusEl.className = "";
-  statusEl.textContent = "Preparando anexos...";
+  statusEl.textContent = "Preparando envio...";
+  showSubmissionModal();
 
   try {
+    updateSubmissionModal("Estamos verificando tudo", "Conferindo os dados principais antes de seguir.", 0);
     const payload = formToPayload(form);
+    updateSubmissionModal("Juntando os anexos", "Preparando os arquivos para ficarem nas pastas certas.", 1);
     payload._files = await collectFiles();
 
     statusEl.textContent = payload._files.length > 0 ? "Enviando dados e anexos..." : "Enviando...";
+    updateSubmissionModal(
+      "Enviando com cuidado",
+      payload._files.length > 0 ? "Gravando na planilha e salvando os anexos no Drive." : "Gravando o levantamento na planilha.",
+      2
+    );
 
     // text/plain evita preflight CORS em muitos cenários de Apps Script.
     const response = await fetch(appsScriptUrl, {
@@ -746,6 +865,8 @@ async function submitForm(event) {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify(payload)
     });
+
+    updateSubmissionModal("Quase lá", "Só mais um pouco. Estamos fechando o envio.", 3);
 
     const responseText = await response.text();
     let result;
@@ -767,11 +888,13 @@ async function submitForm(event) {
     syncConsumers();
 
     statusEl.className = "ok";
-    statusEl.textContent = "Relato enviado com sucesso. Obrigado.";
+    statusEl.textContent = "Levantamento enviado, agora é com agente!! Emoção!";
+    showSubmissionSuccess();
   } catch (error) {
     console.error(error);
     statusEl.className = "err";
     statusEl.textContent = error.message || "Erro ao enviar. Verifique a configuração do Apps Script.";
+    showSubmissionError(statusEl.textContent);
   } finally {
     submitBtn.disabled = false;
   }
@@ -798,6 +921,7 @@ form.addEventListener("submit", submitForm);
 form.addEventListener("input", markFieldEditing);
 form.addEventListener("change", markFieldFinalized);
 form.addEventListener("focusout", markFieldFinalized);
+submissionModalClose.addEventListener("click", hideSubmissionModal);
 setupCpfCnpjFields();
 setupPhoneFields();
 setupDevTools();

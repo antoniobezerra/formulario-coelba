@@ -95,6 +95,26 @@
       </div>
     </form>
 
+    <div id="submissionModal" class="submission-modal" role="dialog" aria-modal="true" aria-labelledby="submissionModalTitle" hidden>
+      <div class="submission-panel">
+        <div class="submission-loader" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <p id="submissionModalEyebrow" class="submission-eyebrow">Envio em andamento</p>
+        <h2 id="submissionModalTitle">Estamos verificando tudo</h2>
+        <p id="submissionModalMessage">Organizando os relatos e anexos com calma.</p>
+        <div class="submission-steps" aria-hidden="true">
+          <span class="is-active"></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <button id="submissionModalClose" class="secondary-btn" type="button" hidden>Fechar</button>
+      </div>
+    </div>
+
     <aside class="progress-footer" aria-live="polite">
       <div class="progress-copy">
         <strong id="progressTitle">Progresso do relato</strong>
