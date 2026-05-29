@@ -225,6 +225,11 @@ input, select, textarea {
   color: var(--text);
 }
 
+input[readonly] {
+  background: #eef3f8;
+  color: var(--muted);
+}
+
 textarea {
   resize: vertical;
 }
