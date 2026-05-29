@@ -13,8 +13,8 @@
  * 9. Copie a Web App URL para app.js.
  */
 
-const SPREADSHEET_ID = "COLE_AQUI_O_ID_DA_PLANILHA";
-const DRIVE_ROOT_FOLDER_ID = "COLE_AQUI_O_ID_DA_PASTA_DO_DRIVE";
+const SPREADSHEET_ID = "1OTd6W7d8WlIs-kFYcO71yPXVXMvdtBSWOkIYnU1BAt0";
+const DRIVE_ROOT_FOLDER_ID = "1D_ZYjtun9hpg4JSeGkr3gDip8StPGNnz";
 const SHEET_NAME = "respostas";
 
 function doPost(e) {
