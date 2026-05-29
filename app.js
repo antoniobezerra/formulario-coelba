@@ -345,18 +345,8 @@ function renderTabs() {
     tab.type = "button";
     tab.role = "tab";
     tab.setAttribute("aria-controls", `consumer-panel-${i}`);
-    tab.innerHTML = `<span>Consumidor ${i}</span><span class="tab-remove" aria-label="Remover consumidor ${i}" title="Remover consumidor">x</span>`;
-    tab.addEventListener("click", (event) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      if (event.target.closest(".tab-remove")) {
-        return;
-      }
-
-      setActiveConsumer(i);
-    });
+    tab.textContent = `Consumidor ${i}`;
+    tab.addEventListener("click", () => setActiveConsumer(i));
     consumerTabs.appendChild(tab);
   }
 
@@ -673,20 +663,20 @@ async function submitForm(event) {
 }
 
 addConsumerBtn.addEventListener("click", addConsumer);
-consumerTabs.addEventListener("click", (event) => {
+consumersRoot.addEventListener("click", (event) => {
   if (!(event.target instanceof Element)) {
     return;
   }
 
-  const removeButton = event.target.closest(".tab-remove");
+  const removeButton = event.target.closest(".consumer-remove-btn");
 
   if (!removeButton) {
     return;
   }
 
   event.stopPropagation();
-  const tab = removeButton.closest(".consumer-tab");
-  const index = Number(tab.id.replace("consumer-tab-", ""));
+  const block = removeButton.closest(".consumer-block");
+  const index = Number(block.dataset.consumerIndex);
   removeConsumer(index);
 });
 form.addEventListener("submit", submitForm);
