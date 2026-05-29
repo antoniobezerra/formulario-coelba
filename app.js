@@ -225,7 +225,8 @@ function updateProgress() {
   }
 
   if (progressText) {
-    progressText.textContent = `${completed} de ${total} campos obrigatórios`;
+    const consumerText = `${getConsumerCount()} ${getConsumerCount() === 1 ? "consumidor" : "consumidores"}`;
+    progressText.textContent = `${completed} de ${total} campos obrigatórios (${consumerText})`;
   }
 
   if (progressPercent) {
