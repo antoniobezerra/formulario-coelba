@@ -18,6 +18,7 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
+  padding-bottom: 96px;
 }
 
 .page {
@@ -188,6 +189,29 @@ input:focus, select:focus, textarea:focus {
   border-color: var(--primary);
 }
 
+label.is-complete {
+  color: #0b5c3f;
+}
+
+label.is-complete input,
+label.is-complete select,
+label.is-complete textarea {
+  border-color: rgba(6, 118, 71, .55);
+  background: #f2fbf7;
+  box-shadow: inset 4px 0 0 rgba(6, 118, 71, .28);
+}
+
+label.is-complete::after {
+  content: "Preenchido";
+  align-self: flex-start;
+  border-radius: 999px;
+  padding: 3px 8px;
+  background: #e3f8ed;
+  color: var(--success);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .check,
 .document-item > label {
   font-weight: 500;
@@ -270,8 +294,75 @@ button:disabled {
 #status.ok { color: var(--success); }
 #status.err { color: var(--danger); }
 
+.progress-footer {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  z-index: 20;
+  display: grid;
+  grid-template-columns: minmax(190px, auto) minmax(160px, 360px) auto;
+  align-items: center;
+  gap: 14px;
+  width: min(940px, calc(100% - 32px));
+  padding: 13px 16px;
+  border: 1px solid rgba(185, 212, 246, .9);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, .96);
+  box-shadow: 0 16px 45px rgba(20, 33, 61, .18);
+  transform: translateX(-50%);
+  backdrop-filter: blur(10px);
+}
+
+.progress-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.progress-copy strong {
+  font-size: 14px;
+}
+
+.progress-copy span {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.progress-track {
+  height: 10px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e4ebf5;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--primary), var(--success));
+  transition: width .25s ease;
+}
+
+.progress-percent {
+  min-width: 44px;
+  color: var(--primary-dark);
+  font-weight: 900;
+  text-align: right;
+}
+
 @media (max-width: 760px) {
+  body { padding-bottom: 138px; }
   .page { width: min(100% - 20px, 1120px); padding-top: 12px; }
   .hero, .card, .section { padding: 18px; border-radius: 18px; }
   .grid, .document-checks { grid-template-columns: 1fr; }
+  .progress-footer {
+    grid-template-columns: 1fr auto;
+    gap: 9px 12px;
+    bottom: 10px;
+    width: calc(100% - 20px);
+  }
+  .progress-track {
+    grid-column: 1 / -1;
+    order: 3;
+  }
 }

@@ -10,6 +10,9 @@ const consumerTabs = document.querySelector("#consumerTabs");
 const addConsumerBtn = document.querySelector("#addConsumerBtn");
 const statusEl = document.querySelector("#status");
 const submitBtn = document.querySelector("#submitBtn");
+const progressBar = document.querySelector("#progressBar");
+const progressText = document.querySelector("#progressText");
+const progressPercent = document.querySelector("#progressPercent");
 
 const MAX_CONSUMERS = 5;
 const MAX_FILE_SIZE_MB = 10;
@@ -174,6 +177,54 @@ function setupPhoneFields(root = document) {
   });
 }
 
+function isElementVisible(element) {
+  return !element.closest("[hidden], .is-hidden");
+}
+
+function getRequiredFields() {
+  return [...form.querySelectorAll("input[required], select[required], textarea[required]")]
+    .filter((field) => !field.disabled && isElementVisible(field));
+}
+
+function isFieldComplete(field) {
+  if (field.type === "checkbox" || field.type === "radio") {
+    return field.checked;
+  }
+
+  return String(field.value || "").trim().length > 0 && field.validity.valid;
+}
+
+function updateFieldCompletion(field) {
+  const label = field.closest("label");
+
+  if (!label) {
+    return;
+  }
+
+  label.classList.toggle("is-complete", isFieldComplete(field));
+}
+
+function updateProgress() {
+  const requiredFields = getRequiredFields();
+  const completed = requiredFields.filter(isFieldComplete).length;
+  const total = requiredFields.length;
+  const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+  form.querySelectorAll("input, select, textarea").forEach(updateFieldCompletion);
+
+  if (progressBar) {
+    progressBar.style.width = `${percent}%`;
+  }
+
+  if (progressText) {
+    progressText.textContent = `${completed} de ${total} campos obrigatórios`;
+  }
+
+  if (progressPercent) {
+    progressPercent.textContent = `${percent}%`;
+  }
+}
+
 function getConsumerCount() {
   const count = Number(consumerCount.value || 1);
   return Math.min(Math.max(count, 1), MAX_CONSUMERS);
@@ -259,11 +310,13 @@ function syncConsumers() {
 
   renderTabs();
   updateVisibleConsumer();
+  updateProgress();
 }
 
 function setActiveConsumer(index) {
   activeConsumer = index;
   updateVisibleConsumer();
+  updateProgress();
 }
 
 function addConsumer() {
@@ -466,6 +519,9 @@ async function submitForm(event) {
 
 addConsumerBtn.addEventListener("click", addConsumer);
 form.addEventListener("submit", submitForm);
+form.addEventListener("input", updateProgress);
+form.addEventListener("change", updateProgress);
+form.addEventListener("focusout", updateProgress);
 setupCpfCnpjFields();
 setupPhoneFields();
 syncConsumers();
