@@ -15,6 +15,129 @@ const MAX_CONSUMERS = 5;
 const MAX_FILE_SIZE_MB = 10;
 let activeConsumer = 1;
 
+function onlyDigits(value) {
+  return String(value || "").replace(/\D/g, "");
+}
+
+function formatCpfCnpj(value) {
+  const digits = onlyDigits(value).slice(0, 14);
+
+  if (digits.length <= 11) {
+    return digits
+      .replace(/^(\d{3})(\d)/, "$1.$2")
+      .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+      .replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3-$4");
+  }
+
+  return digits
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, "$1.$2.$3/$4")
+    .replace(/^(\d{2})\.(\d{3})\.(\d{3})\/(\d{4})(\d)/, "$1.$2.$3/$4-$5");
+}
+
+function hasRepeatedDigits(digits) {
+  return /^(\d)\1+$/.test(digits);
+}
+
+function isValidCpf(value) {
+  const cpf = onlyDigits(value);
+
+  if (cpf.length !== 11 || hasRepeatedDigits(cpf)) {
+    return false;
+  }
+
+  let sum = 0;
+  for (let i = 0; i < 9; i++) {
+    sum += Number(cpf[i]) * (10 - i);
+  }
+
+  let digit = (sum * 10) % 11;
+  if (digit === 10) digit = 0;
+  if (digit !== Number(cpf[9])) return false;
+
+  sum = 0;
+  for (let i = 0; i < 10; i++) {
+    sum += Number(cpf[i]) * (11 - i);
+  }
+
+  digit = (sum * 10) % 11;
+  if (digit === 10) digit = 0;
+
+  return digit === Number(cpf[10]);
+}
+
+function isValidCnpj(value) {
+  const cnpj = onlyDigits(value);
+
+  if (cnpj.length !== 14 || hasRepeatedDigits(cnpj)) {
+    return false;
+  }
+
+  function calculateDigit(base, weights) {
+    const sum = weights.reduce((total, weight, index) => total + Number(base[index]) * weight, 0);
+    const remainder = sum % 11;
+    return remainder < 2 ? 0 : 11 - remainder;
+  }
+
+  const firstDigit = calculateDigit(cnpj, [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+  const secondDigit = calculateDigit(cnpj, [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]);
+
+  return firstDigit === Number(cnpj[12]) && secondDigit === Number(cnpj[13]);
+}
+
+function isValidCpfCnpj(value) {
+  const digits = onlyDigits(value);
+
+  if (digits.length === 11) return isValidCpf(digits);
+  if (digits.length === 14) return isValidCnpj(digits);
+
+  return false;
+}
+
+function applyCpfCnpjMask(event) {
+  const field = event.target;
+  const digits = onlyDigits(field.value);
+  field.value = formatCpfCnpj(field.value);
+
+  if (digits.length === 11 || digits.length === 14) {
+    validateCpfCnpjField(field);
+  } else {
+    field.setCustomValidity("");
+  }
+}
+
+function validateCpfCnpjField(field) {
+  const digits = onlyDigits(field.value);
+
+  if (!digits && !field.required) {
+    field.setCustomValidity("");
+    return true;
+  }
+
+  if (!isValidCpfCnpj(field.value)) {
+    field.setCustomValidity("Informe um CPF ou CNPJ válido.");
+    return false;
+  }
+
+  field.value = formatCpfCnpj(field.value);
+  field.setCustomValidity("");
+  return true;
+}
+
+function setupCpfCnpjFields(root = document) {
+  root.querySelectorAll("[data-document-field]").forEach((field) => {
+    if (field.dataset.maskReady === "true") {
+      return;
+    }
+
+    field.dataset.maskReady = "true";
+    field.addEventListener("input", applyCpfCnpjMask);
+    field.addEventListener("blur", () => validateCpfCnpjField(field));
+    field.addEventListener("change", () => validateCpfCnpjField(field));
+  });
+}
+
 function getConsumerCount() {
   const count = Number(consumerCount.value || 1);
   return Math.min(Math.max(count, 1), MAX_CONSUMERS);
@@ -42,6 +165,7 @@ function createConsumerBlock(index) {
   });
 
   setupDocumentUploads(block);
+  setupCpfCnpjFields(block);
   consumersRoot.appendChild(clone);
 }
 
@@ -165,6 +289,13 @@ function formToPayload(formEl) {
 }
 
 function validateConsumers() {
+  for (const field of form.querySelectorAll("[data-document-field]")) {
+    if (!validateCpfCnpjField(field)) {
+      field.reportValidity();
+      return false;
+    }
+  }
+
   const count = getConsumerCount();
 
   for (let i = 1; i <= count; i++) {
@@ -298,4 +429,5 @@ async function submitForm(event) {
 
 addConsumerBtn.addEventListener("click", addConsumer);
 form.addEventListener("submit", submitForm);
+setupCpfCnpjFields();
 syncConsumers();
