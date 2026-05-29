@@ -16,10 +16,6 @@ const progressPercent = document.querySelector("#progressPercent");
 const integratorGate = document.querySelector("#integratorGate");
 const authorizationSection = document.querySelector("#authorizationSection");
 const formActions = document.querySelector("#formActions");
-const devTools = document.querySelector("#devTools");
-const fillTestDataBtn = document.querySelector("#fillTestDataBtn");
-const localAppsScriptUrl = document.querySelector("#localAppsScriptUrl");
-const saveLocalAppsScriptUrlBtn = document.querySelector("#saveLocalAppsScriptUrlBtn");
 const submissionModal = document.querySelector("#submissionModal");
 const submissionModalEyebrow = document.querySelector("#submissionModalEyebrow");
 const submissionModalTitle = document.querySelector("#submissionModalTitle");
@@ -28,7 +24,6 @@ const submissionModalClose = document.querySelector("#submissionModalClose");
 const submissionStepEls = [...document.querySelectorAll(".submission-steps span")];
 
 const MAX_FILE_SIZE_MB = 10;
-const LOCAL_APPS_SCRIPT_URL_KEY = "formularioCoelbaAppsScriptUrl";
 const SUBMISSION_MESSAGES = [
   {
     title: "Estamos verificando tudo",
@@ -264,92 +259,6 @@ function updateContinuationGate() {
   updateProgress();
 }
 
-function setFieldValue(selector, value, options = {}) {
-  const field = form.querySelector(selector);
-
-  if (!field) {
-    return;
-  }
-
-  if (options.onlyIfEmpty && field.value.trim()) {
-    return;
-  }
-
-  field.value = value;
-  field.dataset.finalized = "true";
-  field.dispatchEvent(new Event("input", { bubbles: true }));
-  field.dispatchEvent(new Event("change", { bubbles: true }));
-}
-
-function setChecked(selector, checked = true) {
-  const field = form.querySelector(selector);
-
-  if (!field) {
-    return;
-  }
-
-  field.checked = checked;
-  field.dataset.finalized = "true";
-  field.dispatchEvent(new Event("change", { bubbles: true }));
-}
-
-function fillTestData() {
-  const preserveExisting = { onlyIfEmpty: true };
-
-  setFieldValue("[name='integrador_nome']", "Integrador Teste", preserveExisting);
-  setFieldValue("[name='integrador_documento']", "11.222.333/0001-81", preserveExisting);
-  setFieldValue("[name='integrador_telefone']", "(71) 99999-8888", preserveExisting);
-  setFieldValue("[name='integrador_email']", "teste@example.com", preserveExisting);
-  setFieldValue("[name='integrador_cidade_uf']", "Salvador / BA", preserveExisting);
-
-  updateContinuationGate();
-  setActiveConsumer(activeConsumer);
-
-  const prefix = `c${activeConsumer}_`;
-  setFieldValue(`[name='${prefix}consumidor_nome']`, `Consumidor Teste ${activeConsumer}`);
-  setFieldValue(`[name='${prefix}consumidor_documento']`, "529.982.247-25");
-  setFieldValue(`[name='${prefix}consumidor_telefone']`, "(71) 98888-7777");
-  setFieldValue(`[name='${prefix}consumidor_email']`, "consumidor@example.com");
-  setFieldValue(`[name='${prefix}consumidor_cidade_uf']`, "Salvador / BA");
-  setFieldValue(`[name='${prefix}consumidor_endereco']`, "Rua de Teste, 123");
-  setFieldValue(`[name='${prefix}consumidor_uc']`, "UC123456");
-  setFieldValue(`[name='${prefix}houve_aviso_previo']`, "Não sei");
-  setFieldValue(`[name='${prefix}tecnico_identificou']`, "Sim");
-  setFieldValue(`[name='${prefix}toi_entregue']`, "Não sei");
-  setFieldValue(`[name='${prefix}pericia_informada']`, "Não sei");
-  setFieldValue(`[name='${prefix}carta_cobranca']`, "Sim");
-  setFieldValue(`[name='${prefix}relatorio_tecnico']`, "Não sei");
-  setFieldValue(`[name='${prefix}calculo_detalhado']`, "Não sei");
-  setFieldValue(`[name='${prefix}relato_inspecao']`, "Relato de teste para validar envio e anexos.");
-  setFieldValue(`[name='${prefix}entrada_area_interna']`, "Não sei");
-  setFieldValue(`[name='${prefix}fotos_videos_retirada']`, "Não sei");
-  setFieldValue(`[name='${prefix}lacre_comprovante']`, "Não se aplica");
-  setFieldValue(`[name='${prefix}projeto_aprovado_anterior']`, "Não sei");
-  setFieldValue(`[name='${prefix}aprovacao_posterior']`, "Não sei");
-  setFieldValue(`[name='${prefix}atualizacao_projeto']`, "Não sei");
-  setFieldValue(`[name='${prefix}documentos_regularizacao']`, "Sim");
-  setFieldValue(`[name='${prefix}ampliacao_em_operacao']`, "Não sei");
-  setChecked("[name='autorizacao_uso_dados']");
-  setChecked("[name='declaracao_veracidade']");
-
-  updateProgress();
-  statusEl.className = "ok";
-  statusEl.textContent = "Dados de teste preenchidos sem trocar os dados do integrador já informados.";
-}
-
-function setupDevTools() {
-  const isLocal = ["127.0.0.1", "localhost"].includes(window.location.hostname);
-
-  if (!isLocal) {
-    return;
-  }
-
-  devTools.hidden = false;
-  localAppsScriptUrl.value = localStorage.getItem(LOCAL_APPS_SCRIPT_URL_KEY) || "";
-  saveLocalAppsScriptUrlBtn.addEventListener("click", saveLocalAppsScriptUrl);
-  fillTestDataBtn.addEventListener("click", fillTestData);
-}
-
 function setSubmissionStep(index) {
   submissionStepEls.forEach((step, stepIndex) => {
     step.classList.toggle("is-active", stepIndex <= index);
@@ -432,31 +341,11 @@ function hideSubmissionModal() {
 }
 
 function getAppsScriptWebAppUrl() {
-  const localUrl = localStorage.getItem(LOCAL_APPS_SCRIPT_URL_KEY);
-
-  if (localUrl) {
-    return localUrl;
-  }
-
   return APPS_SCRIPT_WEB_APP_URL;
 }
 
 function isConfiguredAppsScriptUrl(url) {
   return url && !url.includes("COLE_AQUI") && /^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url);
-}
-
-function saveLocalAppsScriptUrl() {
-  const url = localAppsScriptUrl.value.trim();
-
-  if (!isConfiguredAppsScriptUrl(url)) {
-    statusEl.className = "err";
-    statusEl.textContent = "Cole a URL do Web App do Apps Script terminando em /exec.";
-    return;
-  }
-
-  localStorage.setItem(LOCAL_APPS_SCRIPT_URL_KEY, url);
-  statusEl.className = "ok";
-  statusEl.textContent = "URL local do Apps Script salva. Agora pode testar o envio.";
 }
 
 function isElementVisible(element) {
@@ -930,5 +819,4 @@ form.addEventListener("focusout", markFieldFinalized);
 submissionModalClose.addEventListener("click", hideSubmissionModal);
 setupCpfCnpjFields();
 setupPhoneFields();
-setupDevTools();
 syncConsumers();
