@@ -135,6 +135,10 @@ label {
 }
 
 .consumer-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
   border: 1px solid #cfd8e6;
   border-bottom: 0;
   border-radius: 12px 12px 0 0;
@@ -145,6 +149,34 @@ label {
   font-size: 14px;
   cursor: pointer;
   margin-bottom: -1px;
+}
+
+.tab-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  color: var(--danger);
+  font-size: 15px;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.consumer-tab:hover .tab-remove,
+.consumer-tab:focus-visible .tab-remove {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.tab-remove:hover {
+  background: #ffe2df;
+}
+
+.consumer-tabs:has(.consumer-tab:only-child) .tab-remove {
+  display: none;
 }
 
 .consumer-tab:hover {

@@ -8,7 +8,6 @@ const consumerTemplate = document.querySelector("#consumerTemplate");
 const consumerCount = document.querySelector("#consumerCount");
 const consumerTabs = document.querySelector("#consumerTabs");
 const addConsumerBtn = document.querySelector("#addConsumerBtn");
-const removeConsumerBtn = document.querySelector("#removeConsumerBtn");
 const statusEl = document.querySelector("#status");
 const submitBtn = document.querySelector("#submitBtn");
 const progressBar = document.querySelector("#progressBar");
@@ -222,7 +221,6 @@ function setContinuationLocked(isLocked) {
   formActions.hidden = isLocked;
   integratorGate.hidden = !isLocked;
   addConsumerBtn.disabled = isLocked;
-  removeConsumerBtn.disabled = isLocked || getConsumerCount() <= 1;
 }
 
 function updateContinuationGate() {
@@ -346,14 +344,23 @@ function renderTabs() {
     tab.type = "button";
     tab.role = "tab";
     tab.setAttribute("aria-controls", `consumer-panel-${i}`);
-    tab.textContent = `Consumidor ${i}`;
-    tab.addEventListener("click", () => setActiveConsumer(i));
+    tab.innerHTML = `<span>Consumidor ${i}</span><span class="tab-remove" aria-label="Remover consumidor ${i}" title="Remover consumidor">x</span>`;
+    tab.addEventListener("click", (event) => {
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      if (event.target.closest(".tab-remove")) {
+        return;
+      }
+
+      setActiveConsumer(i);
+    });
     consumerTabs.appendChild(tab);
   }
 
   const locked = !integratorGate.hidden;
   addConsumerBtn.disabled = locked;
-  removeConsumerBtn.disabled = locked || count <= 1;
 }
 
 function updateVisibleConsumer() {
@@ -406,15 +413,15 @@ function addConsumer() {
   syncConsumers();
 }
 
-function removeActiveConsumer() {
+function removeConsumer(index) {
   const count = getConsumerCount();
 
   if (count <= 1) {
     return;
   }
 
-  const block = consumersRoot.querySelector(`[data-consumer-index="${activeConsumer}"]`);
-  const confirmed = window.confirm(`Remover o Consumidor ${activeConsumer}? Os dados desta aba serão apagados.`);
+  const block = consumersRoot.querySelector(`[data-consumer-index="${index}"]`);
+  const confirmed = window.confirm(`Remover o Consumidor ${index}? Os dados desta aba serão apagados.`);
 
   if (!confirmed) {
     return;
@@ -425,7 +432,12 @@ function removeActiveConsumer() {
   }
 
   consumerCount.value = String(count - 1);
-  activeConsumer = Math.min(activeConsumer, count - 1);
+  if (activeConsumer > index) {
+    activeConsumer -= 1;
+  } else {
+    activeConsumer = Math.min(activeConsumer, count - 1);
+  }
+
   renumberConsumerBlocks();
   syncConsumers();
 }
@@ -660,7 +672,22 @@ async function submitForm(event) {
 }
 
 addConsumerBtn.addEventListener("click", addConsumer);
-removeConsumerBtn.addEventListener("click", removeActiveConsumer);
+consumerTabs.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) {
+    return;
+  }
+
+  const removeButton = event.target.closest(".tab-remove");
+
+  if (!removeButton) {
+    return;
+  }
+
+  event.stopPropagation();
+  const tab = removeButton.closest(".consumer-tab");
+  const index = Number(tab.id.replace("consumer-tab-", ""));
+  removeConsumer(index);
+});
 form.addEventListener("submit", submitForm);
 form.addEventListener("input", markFieldEditing);
 form.addEventListener("change", markFieldFinalized);
