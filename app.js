@@ -221,6 +221,7 @@ function setContinuationLocked(isLocked) {
   formActions.hidden = isLocked;
   integratorGate.hidden = !isLocked;
   addConsumerBtn.disabled = isLocked;
+  submitBtn.disabled = isLocked;
 }
 
 function updateContinuationGate() {
