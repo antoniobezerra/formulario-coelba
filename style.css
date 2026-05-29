@@ -106,7 +106,8 @@ label {
 .consumer-tabs-field {
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 9px;
+  grid-column: 1 / -1;
 }
 
 .field-label {
@@ -116,26 +117,34 @@ label {
 
 .consumer-tabs-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: flex-end;
+  gap: 12px;
   flex-wrap: wrap;
+  width: 100%;
 }
 
 .consumer-tabs {
   display: flex;
-  gap: 6px;
+  align-items: flex-end;
+  gap: 4px;
   flex-wrap: wrap;
+  flex: 1 1 520px;
+  min-height: 45px;
+  padding: 0 0 0 6px;
+  border-bottom: 1px solid #b9d4f6;
 }
 
 .consumer-tab {
   border: 1px solid #cfd8e6;
-  border-radius: 12px;
-  padding: 11px 14px;
-  background: #fff;
+  border-bottom: 0;
+  border-radius: 12px 12px 0 0;
+  padding: 12px 15px;
+  background: #edf4fd;
   color: var(--text);
   font-weight: 800;
   font-size: 14px;
   cursor: pointer;
+  margin-bottom: -1px;
 }
 
 .consumer-tab:hover {
@@ -144,9 +153,10 @@ label {
 }
 
 .consumer-tab.is-active {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: #fff;
+  border-color: #b9d4f6;
+  background: #f8fbff;
+  color: var(--primary-dark);
+  padding-top: 15px;
 }
 
 .secondary-btn {

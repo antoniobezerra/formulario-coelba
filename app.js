@@ -14,7 +14,6 @@ const progressBar = document.querySelector("#progressBar");
 const progressText = document.querySelector("#progressText");
 const progressPercent = document.querySelector("#progressPercent");
 
-const MAX_CONSUMERS = 5;
 const MAX_FILE_SIZE_MB = 10;
 let activeConsumer = 1;
 
@@ -227,7 +226,7 @@ function updateProgress() {
 
 function getConsumerCount() {
   const count = Number(consumerCount.value || 1);
-  return Math.min(Math.max(count, 1), MAX_CONSUMERS);
+  return Math.max(count, 1);
 }
 
 function createConsumerBlock(index) {
@@ -273,7 +272,7 @@ function renderTabs() {
     consumerTabs.appendChild(tab);
   }
 
-  addConsumerBtn.disabled = count >= MAX_CONSUMERS;
+  addConsumerBtn.disabled = false;
 }
 
 function updateVisibleConsumer() {
@@ -320,7 +319,7 @@ function setActiveConsumer(index) {
 }
 
 function addConsumer() {
-  const nextCount = Math.min(getConsumerCount() + 1, MAX_CONSUMERS);
+  const nextCount = getConsumerCount() + 1;
   consumerCount.value = String(nextCount);
   activeConsumer = nextCount;
   syncConsumers();
